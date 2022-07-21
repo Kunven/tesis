@@ -1,10 +1,19 @@
-<template>  
+<template>
+
   <div v-if="auth">
-    <MainApp />
+    <v-layout>
+      <v-main>
+        <MainApp/>
+      </v-main>
+    </v-layout>
   </div>
   <div v-else>
-    <LoginPage />
-  </div>
+    <v-layout>
+      <v-main>
+          <LoginPage/>
+      </v-main>
+    </v-layout>
+  </div>  
   <br/>  
   <button v-on:click="logoutTest" class="btn btn-primary">Cerrar Sesion</button>  
 </template>
@@ -48,9 +57,16 @@ export default {
       auth.onAuthStateChanged((user) =>{
         if (user) {
           console.log("Logged In")
-          console.log(auth.currentUser)//const user = ;
+          const store = useMainStore()
+              store.$patch({
+                LoggedIn: true
+              })
         }else{
           console.log("Not Logged In")
+          const store = useMainStore()
+              store.$patch({
+                LoggedIn: false
+              })
          }
       });
     });
@@ -78,4 +94,16 @@ export default {
   min-height: 100vh;
   background-color:#2c3e50;
 }
+.vertical-center {
+  /*Codigo 0% Original*/
+  min-height: 100%; /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+a { text-decoration: none; }
 </style>
+
+
