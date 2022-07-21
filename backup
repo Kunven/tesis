@@ -1,0 +1,36 @@
+<div class="vertical-center">
+    <div
+      class="container"
+      style="
+        background-color: white;
+        border-radius: 5px;
+        margin-top: 5px;
+        color: black;
+        max-width: 25%;
+      "
+    >      
+      <div class="row mt-5">
+        <h1 style="text-align: center">
+          Logo
+        </h1>
+      </div>
+      <div class="row mb-5">
+        <form>
+          <div class="col-md-12">
+            <div class="form-group">              
+              <v-text-field v-model="User" label="Usuario"></v-text-field>
+            </div>
+            <div class="col-md-12">              
+              <v-text-field v-model="Password" label="Contraseña" type="password"></v-text-field>
+            </div>
+            <div class="col-md-12 mt-2">
+              <small><p style="text-align: right ;">Olvidaste tu Contraseña? - PENDIENTE</p></small>              
+            </div>
+            <div class="col-md-12 text-center mt-2">
+              <v-btn type="button" v-on:click="loginUser" class="mt-2 w-75" color="primary">Iniciar Sesion</v-btn>              
+            </div>            
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
