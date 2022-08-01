@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-//import HomeView from "../views/HomeView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -7,7 +6,7 @@ const router = createRouter({
     {
       path: "/a",
       name: "App",
-      component: () => import("../App.vue")
+      component: () => import("../components/MainApp.vue")
     },
     {
       path: "/login",
@@ -18,7 +17,12 @@ const router = createRouter({
       path: "/register",
       name: "register",
       component: () => import ("../components/RegisterPage.vue"),
-    }
+    },
+    {
+      path: "/home",
+      name: "home",
+      component: () => import ("../components/HomePage.vue"),
+    },
   ],
 });
 
