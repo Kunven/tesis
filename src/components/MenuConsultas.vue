@@ -13,7 +13,9 @@
         v-model="dialog"
         activator="parent"
       >
-        <v-card>
+        <v-card
+          min-width="500"
+        >
           <v-card-title>
             <span class="text-h5">Formulario de Consultas</span>
           </v-card-title>
@@ -23,14 +25,15 @@
                 <v-col>
                   <v-text-field label="Descripcion" required/>
                 </v-col>
-              </v-row>
-              <v-row>
                 <v-col>
                   <v-select
                     :items="doctores"
                     label="Doctores"
                   ></v-select>
                 </v-col>
+              </v-row>
+              <v-row>                
+                <v-date-picker v-model="date" />
               </v-row>
             </v-container>
           </v-card-text>
@@ -86,6 +89,7 @@
     <!-- END TABLE -->    
 </template>
 <script>
+  import 'v-calendar/dist/style.css';
   export default {
     data () {
       return {
