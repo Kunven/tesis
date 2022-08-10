@@ -14,7 +14,7 @@
         activator="parent"
       >
         <v-card
-          min-width="500"
+          min-width="800"
         >
           <v-card-title>
             <span class="text-h5">Formulario de Consultas</span>
@@ -24,16 +24,19 @@
               <v-row>
                 <v-col>
                   <v-text-field label="Descripcion" required/>
-                </v-col>
-                <v-col>
-                  <v-select
-                    :items="doctores"
-                    label="Doctores"
-                  ></v-select>
-                </v-col>
+                </v-col>                
               </v-row>
-              <v-row>                
-                <v-date-picker v-model="date" />
+              <v-row>   
+                 <v-select
+                :items="doctores"
+                label="Seleccione un Doctor"
+                @update:modelValue="loadCalendar"
+                ></v-select>
+              </v-row>
+              <v-row v-if="showSchedule">
+                 <v-date-picker   
+                  
+                  v-model="date"/>
               </v-row>
             </v-container>
           </v-card-text>
@@ -90,10 +93,15 @@
 </template>
 <script>
   import 'v-calendar/dist/style.css';
-  export default {
-    data () {
-      return {
-        consultas: [
+  import { ref } from 'vue'
+  export default {    
+    setup () {
+      const doctores = [
+          'Luis Andrade',
+          'Doctor Prueba',
+          'David Guevara'
+      ]
+      const consultas = [
           {            
             descripcion: 'Consulta de Prueba',
             estado: 'Pendiente',
@@ -102,12 +110,18 @@
             doctor: 'TKXtTIVrY5UXwpBAoYXOZJCc1Ry1',
             usuario: '71OykACAi9M1AjyeZPPofFtGsYN2'
           },
-        ],
-        doctores: [
-          'Luis Andrade',
-          'Doctor Prueba',
-          'David Guevara'
-        ]
+      ]      
+      const date = ref(new Date)
+      let showSchedule = ref(false)
+      return {
+        date,
+        showSchedule,
+        consultas,
+        doctores,       
+        loadCalendar() {
+          //alert(date.value)
+          showSchedule.value = true        
+        }  
       }
     },
   }

@@ -13,7 +13,7 @@ export default {
   components: {
     
   },  
-  methods:{        
+  methods:{
   },
 	setup() {    
     let UID = ref('')    
