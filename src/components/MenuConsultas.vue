@@ -34,9 +34,28 @@
                 ></v-select>
               </v-row>
               <v-row v-if="showSchedule">
-                 <v-date-picker   
-                  
-                  v-model="date"/>
+                <v-col>
+                  <v-date-picker   
+                    @dayclick="loadSchedule"
+                    :model-config="modelConfig"
+                    v-model="date"/>
+                </v-col>                 
+                <v-col>
+                  <div class="text-h6">
+                    Horario del doctor el {{ date || 'seleccione otro dia...' }}
+                  </div>                  
+                  <ul v-if="consultas_dia.length != 0">
+                    <li
+                      v-for="consulta in consultas_dia"
+                      :key="consulta"
+                    >
+                      Ocupado Desde {{ consulta.fechaInicio.getHours() }}:{{ consulta.fechaInicio.getMinutes() || '00' }} Hasta {{ consulta.fechaFin.getHours() }}:{{ consulta.fechaFin.getMinutes() || '00' }}
+                    </li>
+                  </ul>
+                  <div v-else>
+                    El doctor no tiene consultas este dia.
+                  </div>
+                </v-col>
               </v-row>
             </v-container>
           </v-card-text>
@@ -105,15 +124,22 @@
           {            
             descripcion: 'Consulta de Prueba',
             estado: 'Pendiente',
-            fechaInicio: '10/08/2022: 10AM',
-            fechaFin: '10/08/2022: 12PM',
+            fechaInicio: new Date(2022,8,10,10,0),
+            fechaFin: new Date(2022,8,10,10,30),
             doctor: 'TKXtTIVrY5UXwpBAoYXOZJCc1Ry1',
             usuario: '71OykACAi9M1AjyeZPPofFtGsYN2'
           },
-      ]      
+      ]
+      let consultas_dia = ref([])
       const date = ref(new Date)
       let showSchedule = ref(false)
+      const modelConfig = {
+        type: 'string',
+        mask: 'YYYY-MM-DD', // Uses 'iso' if missing
+      }
       return {
+        consultas_dia,
+        modelConfig,
         date,
         showSchedule,
         consultas,
@@ -121,7 +147,21 @@
         loadCalendar() {
           //alert(date.value)
           showSchedule.value = true        
-        }  
+        },
+        loadSchedule(){
+          consultas_dia.value = []
+          consultas.forEach(element => {            
+            if (element.fechaInicio.getMonth() == new Date(date.value).getMonth() + 1 ) {
+              if (element.fechaInicio.getDate() == new Date(date.value).getDate() + 1) {
+                if (element.estado == 'Pendiente') {
+                  consultas_dia.value.push(element)
+                } 
+              }              
+            }
+          });
+          console.log(consultas_dia.value)
+          //alert(date.value)
+        }
       }
     },
   }
