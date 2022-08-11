@@ -28,6 +28,11 @@ const router = createRouter({
       name: "consultas",
       component: () => import ("../components/MenuConsultas.vue"),
     },
+    {
+      path: "/fichas",
+      name: "fichas",
+      component: () => import ("../components/FichasMedicas.vue"),
+    },
   ],
 });
 

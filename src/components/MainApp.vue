@@ -20,12 +20,29 @@
       >
         <v-list-item prepend-icon="mdi-view-dashboard" title="Inicio" value="Inicio" href="/home"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Consultas" value="Consultas" href="/consultas"></v-list-item>
-        <v-list-item prepend-icon="mdi-forum" title="Fichas Medicas" value="Fichas"></v-list-item>
-        <v-list-item prepend-icon="mdi-forum" title="Pacientes" value="Pacientes"></v-list-item>
+        <v-list-item prepend-icon="mdi-forum" title="Fichas Medicas" value="Fichas" href="fichas"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Mi Usuario" value="Usuario"></v-list-item>
+        <v-list-item prepend-icon="mdi-forum" title="Cerrar Sesion" v-on:click="logout"></v-list-item>
       </v-list>
     </v-navigation-drawer>
   <!-- END NAVIGATION DRAWER -->
   <router-view/> <!-- ROUTER VIEW FOR COMPONENTS -->
 </template>
+<script>
+import { auth } from "../firebase"
+import { useMainStore} from '../store/mainStore'
+export default {
+  setup() {
+    return {
+      logout(){      
+      auth.signOut().then(() =>{
+      const store = useMainStore()
+      store.LoggedIn = false
+      })
+    },
+    }
+  },
+}
+</script>
+
 

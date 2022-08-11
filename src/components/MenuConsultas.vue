@@ -33,30 +33,63 @@
                 @update:modelValue="loadCalendar"
                 ></v-select>
               </v-row>
-              <v-row v-if="showSchedule">
-                <v-col>
-                  <v-date-picker   
-                    @dayclick="loadSchedule"
-                    :model-config="modelConfig"
-                    v-model="date"/>
-                </v-col>                 
-                <v-col>
-                  <div class="text-h6">
-                    Horario del doctor el {{ date || 'seleccione otro dia...' }}
-                  </div>                  
-                  <ul v-if="consultas_dia.length != 0">
-                    <li
-                      v-for="consulta in consultas_dia"
-                      :key="consulta"
-                    >
-                      Ocupado Desde {{ consulta.fechaInicio.getHours() }}:{{ consulta.fechaInicio.getMinutes() || '00' }} Hasta {{ consulta.fechaFin.getHours() }}:{{ consulta.fechaFin.getMinutes() || '00' }}
-                    </li>
-                  </ul>
-                  <div v-else>
-                    El doctor no tiene consultas este dia.
-                  </div>
-                </v-col>
-              </v-row>
+              <div v-if="showSchedule">
+                <span class="text-h5">Seleccione la Fecha y Hora de la Consulta</span>
+                <v-row>
+                  <v-col>
+                    <label>Hora de Inicio de la Consulta</label>
+                    <v-date-picker v-model="time" class="my-2" mode="time">
+                        <template v-slot="{ inputValue, inputEvents }">                            
+                            <input
+                            class="form-control"
+                            label="Fecha"                            
+                            :value="inputValue"
+                            v-on="inputEvents"
+                            />
+                        </template>
+                    </v-date-picker>
+                  </v-col>
+                  <v-col>
+                    <label>Hora de Fin de la Consulta</label>
+                    <v-date-picker v-model="time2" class="my-2" mode="time">
+                        <template v-slot="{ inputValue, inputEvents }">                            
+                            <input
+                            class="form-control"
+                            label="Fecha"                            
+                            :value="inputValue"
+                            v-on="inputEvents"
+                            />
+                        </template>
+                    </v-date-picker>
+                  </v-col>
+                </v-row>
+                <v-row >                  
+                  <v-col>                    
+                    <v-date-picker   
+                      @dayclick="loadSchedule"
+                      :model-config="modelConfig"
+                      v-model="date"/>
+                  </v-col>                 
+                  <v-col>
+                    <div class="text-h6">
+                      Horario del doctor el {{ date || 'seleccione otro dia...' }}
+                    </div>                  
+                    <ul v-if="consultas_dia.length != 0">
+                      <li
+                        v-for="consulta in consultas_dia"
+                        :key="consulta"
+                      >
+                        Ocupado Desde {{ consulta.fechaInicio.getHours() }}:{{ consulta.fechaInicio.getMinutes() || '00' }} Hasta {{ consulta.fechaFin.getHours() }}:{{ consulta.fechaFin.getMinutes() || '00' }}
+                      </li>
+                      
+                    </ul>
+                    <div v-else>
+                      El doctor no tiene consultas este dia.
+                    </div>
+                  </v-col>
+                </v-row>                
+              </div>
+              
             </v-container>
           </v-card-text>
         </v-card>
@@ -132,12 +165,16 @@
       ]
       let consultas_dia = ref([])
       const date = ref(new Date)
+      const time = ref(new Date)
+      const time2 = ref(new Date)
       let showSchedule = ref(false)
       const modelConfig = {
         type: 'string',
         mask: 'YYYY-MM-DD', // Uses 'iso' if missing
       }
       return {
+        time,
+        time2,
         consultas_dia,
         modelConfig,
         date,
