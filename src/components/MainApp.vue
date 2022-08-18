@@ -20,8 +20,7 @@
       >
         <v-list-item prepend-icon="mdi-view-dashboard" title="Inicio" value="Inicio" href="/home"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Consultas" value="Consultas" href="/consultas"></v-list-item>
-        <v-list-item prepend-icon="mdi-forum" title="Fichas Medicas" value="Fichas" href="fichas"></v-list-item>
-        <v-list-item prepend-icon="mdi-forum" title="Mi Usuario" value="Usuario"></v-list-item>
+        <v-list-item prepend-icon="mdi-forum" title="Fichas Medicas" value="Fichas" href="fichas"></v-list-item>        
         <v-list-item prepend-icon="mdi-forum" title="Cerrar Sesion" v-on:click="logout"></v-list-item>
       </v-list>
     </v-navigation-drawer>
