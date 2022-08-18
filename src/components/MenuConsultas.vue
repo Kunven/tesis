@@ -23,7 +23,7 @@
             <v-container>
               <v-row>
                 <v-col>
-                  <v-text-field label="Descripcion" required/>
+                  <v-text-field label="Descripcion" required v-model="descripcion"/>
                 </v-col>                
               </v-row>
               <v-row>   
@@ -31,6 +31,7 @@
                 :items="doctores"
                 label="Seleccione un Doctor"
                 @update:modelValue="loadCalendar"
+                v-model="doctor"
                 ></v-select>
               </v-row>
               <div v-if="showSchedule">
@@ -38,7 +39,7 @@
                 <v-row>
                   <v-col>
                     <label>Hora de Inicio de la Consulta</label>
-                    <v-date-picker v-model="time" class="my-2" mode="time">
+                    <v-date-picker v-model="timeBegin" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
                             class="form-control"
@@ -51,7 +52,7 @@
                   </v-col>
                   <v-col>
                     <label>Hora de Fin de la Consulta</label>
-                    <v-date-picker v-model="time2" class="my-2" mode="time">
+                    <v-date-picker v-model="timeEnd" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
                             class="form-control"
@@ -87,11 +88,14 @@
                       El doctor no tiene consultas este dia.
                     </div>
                   </v-col>
-                </v-row>                
+                </v-row>
               </div>
               
             </v-container>
           </v-card-text>
+          <v-card-actions>
+            <v-btn :loading="loading" @click="submitForm">Guardar</v-btn>
+          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-btn>
@@ -141,7 +145,10 @@
           </tr>
         </tbody>
     </v-table>
-    <!-- END TABLE -->    
+    <!-- END TABLE -->
+
+    <!-- BEGIN MODAL -->
+    <!-- END MODAL -->
 </template>
 <script>
   import 'v-calendar/dist/style.css';
@@ -153,28 +160,36 @@
           'Doctor Prueba',
           'David Guevara'
       ]
-      const consultas = [
-          {            
-            descripcion: 'Consulta de Prueba',
-            estado: 'Pendiente',
-            fechaInicio: new Date(2022,8,10,10,0),
-            fechaFin: new Date(2022,8,10,10,30),
-            doctor: 'TKXtTIVrY5UXwpBAoYXOZJCc1Ry1',
-            usuario: '71OykACAi9M1AjyeZPPofFtGsYN2'
-          },
-      ]
+      const consultas = ref([
+        {            
+          descripcion: 'Consulta de Prueba',
+          estado: 'Pendiente',
+          fechaInicio: new Date(2022,8,10,10,0),
+          fechaFin: new Date(2022,8,10,10,30),
+          doctor: 'TKXtTIVrY5UXwpBAoYXOZJCc1Ry1',
+          usuario: '71OykACAi9M1AjyeZPPofFtGsYN2'
+        },
+      ])
       let consultas_dia = ref([])
       const date = ref(new Date)
-      const time = ref(new Date)
-      const time2 = ref(new Date)
+      const timeBegin = ref(new Date)
+      const timeEnd = ref(new Date)
       let showSchedule = ref(false)
       const modelConfig = {
         type: 'string',
         mask: 'YYYY-MM-DD', // Uses 'iso' if missing
       }
+      const descripcion = ref()
+      const doctor = ref()
+      let loading = ref(false)
+      let dialog = ref(false)
       return {
-        time,
-        time2,
+        dialog,
+        descripcion,
+        doctor,
+        loading,
+        timeBegin,
+        timeEnd,
         consultas_dia,
         modelConfig,
         date,
@@ -187,7 +202,7 @@
         },
         loadSchedule(){
           consultas_dia.value = []
-          consultas.forEach(element => {            
+          consultas.value.forEach(element => {            
             if (element.fechaInicio.getMonth() == new Date(date.value).getMonth() + 1 ) {
               if (element.fechaInicio.getDate() == new Date(date.value).getDate() + 1) {
                 if (element.estado == 'Pendiente') {
@@ -198,6 +213,14 @@
           });
           console.log(consultas_dia.value)
           //alert(date.value)
+        },
+        submitForm(){
+          loading.value = true
+          consultas.value.push({
+            descripcion: descripcion.value,estado: 'Pendiente',fechaInicio: timeBegin.value, fechaFin: timeEnd.value, doctor: doctor.value, usuario: 'Luis Andrade'
+          })
+          loading.value = false
+          dialog.value = false
         }
       }
     },
