@@ -3,7 +3,7 @@
         <h1>Consultas</h1>
     </v-card>
     <!-- BEGIN DIALOG -->
-     <div>
+  <div>
     <v-btn
       class="mx-2 my-1"
       prepend-icon="mdi-plus-circle"
@@ -28,10 +28,11 @@
               </v-row>
               <v-row>   
                  <v-select
-                :items="doctores"
+                :items="doctoresRef"
+                item-title="name"
+                item-value="id"
                 label="Seleccione un Doctor"
-                @update:modelValue="loadCalendar"
-                v-model="doctor"
+                @update:modelValue="loadCalendar"                
                 ></v-select>
               </v-row>
               <div v-if="showSchedule">
@@ -94,14 +95,14 @@
             </v-container>
           </v-card-text>
           <v-card-actions>
-            <v-btn :loading="loading" @click="submitForm">Guardar</v-btn>
+            <v-btn :loading="loadingMain" @click="submitForm">Guardar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
     </v-btn>
   </div>
     <!-- END DIALOG -->
-
+    
     <!-- BEGIN TABLE -->
     <v-table class="mx-2 my-1">
         <thead>
@@ -137,10 +138,48 @@
               <td>{{ item.doctor }}</td>
               <td>{{ item.estado }}</td>
               <td>
-                 <v-btn
-                  prepend-icon="mdi-refresh"                  
-                  color="primary"
-                >Update</v-btn>
+                <v-menu>
+      <template v-slot:activator="{ props }">
+        <v-btn
+          color="primary"
+          v-bind="props"
+        >
+          Acciones
+        </v-btn>
+      </template>
+      <v-list>
+        <!-- <v-list-item>
+          <v-btn>Actualizar</v-btn>
+        </v-list-item> -->
+        <v-list-item v-if="isDoc && item.estado != 'Aprobado'" >
+          <v-btn color="primary">Aprobar
+            <v-dialog activator="parent" v-model="dialogAprobar">
+              <v-card>
+                <v-card-title>Aprobar Solicitud</v-card-title>
+                <v-card-text>                  
+                  Esta Seguro que Desea Aprobar Esta Consulta?
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn color="primary" @click="aprobarConsulta(item.id)" :loading="loadingAprobar">Si</v-btn>
+                  <v-btn @click="dialogAprobar = false">No</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-btn>
+        </v-list-item>
+        <v-list-item>          
+          <v-btn color="primary">Cancelar</v-btn>
+        </v-list-item>
+        <v-list-item>
+          <v-btn color="primary">Pagar</v-btn>
+        </v-list-item>
+        <v-list-item disabled="true">
+          <v-btn color="primary">Realizar</v-btn>
+        </v-list-item>
+
+      </v-list>
+    </v-menu>
+                
               </td>
           </tr>
         </tbody>
@@ -151,25 +190,49 @@
     <!-- END MODAL -->
 </template>
 <script>
+  import { useMainStore} from '../store/mainStore'
   import 'v-calendar/dist/style.css';
-  import { ref } from 'vue'
+  import { auth,db } from "../firebase.js"
+  import { ref,onMounted } from 'vue'
   export default {    
-    setup () {
-      const doctores = [
-          'Luis Andrade',
-          'Doctor Prueba',
-          'David Guevara'
-      ]
-      const consultas = ref([
-        {            
-          descripcion: 'Consulta de Prueba',
-          estado: 'Pendiente',
-          fechaInicio: new Date(2022,8,10,10,0),
-          fechaFin: new Date(2022,8,10,10,30),
-          doctor: 'TKXtTIVrY5UXwpBAoYXOZJCc1Ry1',
-          usuario: '71OykACAi9M1AjyeZPPofFtGsYN2'
-        },
-      ])
+    setup () {      
+      const dialogAprobar = ref(false)
+      const doctoresRef = []
+      let isDoc = false
+      const store = useMainStore()
+      let userRole = store.rol
+      if (userRole == 0) {
+        isDoc = false
+      }else{
+        isDoc = true
+      }      
+      const consultas = ref([])
+      onMounted(async () =>{
+        //get user
+        
+        //get Doctores
+        let doctores = await db.collection('users').where('rol','==', 1 ).get()
+        doctores.forEach(doc => {
+          let data = doc.data()          
+          doctoresRef.push({name: data.first_name + ' ' + data.last_name,id: doc.id})
+        });        
+        //get Consultas
+        auth.onAuthStateChanged(async (user) =>{                          
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).get()
+          consultasRef.forEach(doc => {
+            let data = doc.data()
+            consultas.value.push({
+            ...data,
+            fechaInicio: new Date(data.fechaInicio.seconds*1000),
+            fechaFin: new Date(data.fechaFin.seconds*1000),
+            doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            id: doc.id
+            })
+          });          
+        });
+        
+        
+      })
       let consultas_dia = ref([])
       const date = ref(new Date)
       const timeBegin = ref(new Date)
@@ -181,21 +244,12 @@
       }
       const descripcion = ref()
       const doctor = ref()
-      let loading = ref(false)
+      let loadingMain = ref(false)
+      let loadingAprobar = ref(false)
       let dialog = ref(false)
       return {
-        dialog,
-        descripcion,
-        doctor,
-        loading,
-        timeBegin,
-        timeEnd,
-        consultas_dia,
-        modelConfig,
-        date,
-        showSchedule,
-        consultas,
-        doctores,       
+        doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,modelConfig,date,showSchedule,
+        consultas,isDoc,dialogAprobar,loadingAprobar,
         loadCalendar() {
           //alert(date.value)
           showSchedule.value = true        
@@ -208,19 +262,25 @@
                 if (element.estado == 'Pendiente') {
                   consultas_dia.value.push(element)
                 } 
-              }              
+              }
             }
           });
-          console.log(consultas_dia.value)
-          //alert(date.value)
         },
         submitForm(){
-          loading.value = true
+          loadingMain.value = true
           consultas.value.push({
             descripcion: descripcion.value,estado: 'Pendiente',fechaInicio: timeBegin.value, fechaFin: timeEnd.value, doctor: doctor.value, usuario: 'Luis Andrade'
           })
-          loading.value = false
+          loadingMain.value = false
           dialog.value = false
+        },
+        async aprobarConsulta(docId){
+          loadingAprobar.value = true
+          let doc = await db.collection('consultas').doc(docId)
+          await doc.update({estado: 'Aprobado'})
+          loadingAprobar.value = false
+          dialogAprobar.value = false
+          console.log(docId)
         }
       }
     },

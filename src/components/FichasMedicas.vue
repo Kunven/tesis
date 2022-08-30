@@ -77,6 +77,9 @@
               </v-row>
             </v-container>
           </v-card-text>
+          <v-card-actions>
+            <v-btn :loading="loading" @click="submitForm">Guardar</v-btn>
+          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-btn>
@@ -130,11 +133,13 @@
 </template>
 <script>
   import 'v-calendar/dist/style.css';
-  //import { ref } from 'vue'
+  import { ref } from 'vue'
   export default {    
     setup () {
-        const Sexos = ['Masculino','Femenino']    
+        const Sexos = ['Masculino','Femenino']
+        let loading = ref(false)
         return {
+            loading,
             Sexos
         }
     },

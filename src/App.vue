@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { auth } from "./firebase"
+import { auth,db } from "./firebase"
 import { onMounted } from 'vue'
 import LoginPage from './components/LoginPage.vue'
 import MainApp from './components/MainApp.vue'
@@ -54,15 +54,17 @@ export default {
   },
   setup() {
     onMounted(() =>{      
-      auth.onAuthStateChanged((user) =>{
+      auth.onAuthStateChanged(async (user) =>{
         if (user) {
-          console.log("Logged In")
+          let userRef = await db.collection('users').doc(user.uid).get()
+          //console.log("Logged In")
           const store = useMainStore()
               store.$patch({
-                LoggedIn: true
+                LoggedIn: true,
+                rol: userRef.data().rol
               })
         }else{
-          console.log("Not Logged In")
+          //console.log("Not Logged In")
           const store = useMainStore()
               store.$patch({
                 LoggedIn: false
