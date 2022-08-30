@@ -8,7 +8,7 @@
       class="mx-2 my-1"
       prepend-icon="mdi-plus-circle"
       color="primary"
-    >Nueva Consulta
+    >Nueva Cita
       <v-dialog
         v-model="dialog"
         activator="parent"
@@ -28,6 +28,7 @@
               </v-row>
               <v-row>   
                  <v-select
+                 v-model="doctor"
                 :items="doctoresRef"
                 item-title="name"
                 item-value="id"
@@ -36,10 +37,10 @@
                 ></v-select>
               </v-row>
               <div v-if="showSchedule">
-                <span class="text-h5">Seleccione la Fecha y Hora de la Consulta</span>
+                <span class="text-h5">Seleccione la Fecha y Hora de la Cita</span>
                 <v-row>
                   <v-col>
-                    <label>Hora de Inicio de la Consulta</label>
+                    <label>Hora de Inicio de la Cita</label>
                     <v-date-picker v-model="timeBegin" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
@@ -52,7 +53,7 @@
                     </v-date-picker>
                   </v-col>
                   <v-col>
-                    <label>Hora de Fin de la Consulta</label>
+                    <label>Hora de Fin de la Cita</label>
                     <v-date-picker v-model="timeEnd" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
@@ -68,8 +69,7 @@
                 <v-row >                  
                   <v-col>                    
                     <v-date-picker   
-                      @dayclick="loadSchedule"
-                      :model-config="modelConfig"
+                      @dayclick="loadSchedule"                      
                       v-model="date"/>
                   </v-col>                 
                   <v-col>
@@ -155,9 +155,9 @@
           <v-btn color="primary">Aprobar
             <v-dialog activator="parent" v-model="dialogAprobar">
               <v-card>
-                <v-card-title>Aprobar Solicitud</v-card-title>
+                <v-card-title>Aprobar Cita</v-card-title>
                 <v-card-text>                  
-                  Esta Seguro que Desea Aprobar Esta Consulta?
+                  Esta Seguro que Desea Aprobar Esta Cita?
                 </v-card-text>
                 <v-card-actions>
                   <v-btn color="primary" @click="aprobarConsulta(item.id)" :loading="loadingAprobar">Si</v-btn>
@@ -168,7 +168,18 @@
           </v-btn>
         </v-list-item>
         <v-list-item>          
-          <v-btn color="primary">Cancelar</v-btn>
+          <v-btn color="primary">Cancelar
+            <v-dialog activator="parent" v-model="dialogCancelar">
+              <v-card>
+                <v-card-title>Cancelar Cita</v-card-title>
+                <v-card-text>Esta Seguro que Desea Cancelar Esta Cita?</v-card-text>
+                <v-card-actions>
+                  <v-btn color="primary" @click="cancelarCita(item.id)" :loading="loadingCancelar">Si</v-btn>
+                  <v-btn @click="dialogCancelar = false">No</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-btn>
         </v-list-item>
         <v-list-item>
           <v-btn color="primary">Pagar</v-btn>
@@ -192,11 +203,13 @@
 <script>
   import { useMainStore} from '../store/mainStore'
   import 'v-calendar/dist/style.css';
-  import { auth,db } from "../firebase.js"
+  import { auth,db } from "../firebase.js"  
+  import { Timestamp } from "firebase/firestore";
   import { ref,onMounted } from 'vue'
   export default {    
     setup () {      
       const dialogAprobar = ref(false)
+      const dialogCancelar = ref(false)
       const doctoresRef = []
       let isDoc = false
       const store = useMainStore()
@@ -206,7 +219,7 @@
       }else{
         isDoc = true
       }      
-      const consultas = ref([])
+      let consultas = ref([])
       onMounted(async () =>{
         //get user
         
@@ -217,8 +230,8 @@
           doctoresRef.push({name: data.first_name + ' ' + data.last_name,id: doc.id})
         });        
         //get Consultas
-        auth.onAuthStateChanged(async (user) =>{                          
-          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).get()
+        auth.onAuthStateChanged(async (user) =>{
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
           consultasRef.forEach(doc => {
             let data = doc.data()
             consultas.value.push({
@@ -237,21 +250,17 @@
       const date = ref(new Date)
       const timeBegin = ref(new Date)
       const timeEnd = ref(new Date)
-      let showSchedule = ref(false)
-      const modelConfig = {
-        type: 'string',
-        mask: 'YYYY-MM-DD', // Uses 'iso' if missing
-      }
+      let showSchedule = ref(false)      
       const descripcion = ref()
       const doctor = ref()
       let loadingMain = ref(false)
       let loadingAprobar = ref(false)
+      let loadingCancelar= ref(false)
       let dialog = ref(false)
       return {
-        doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,modelConfig,date,showSchedule,
-        consultas,isDoc,dialogAprobar,loadingAprobar,
-        loadCalendar() {
-          //alert(date.value)
+        doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
+        consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,
+        loadCalendar() {          
           showSchedule.value = true        
         },
         loadSchedule(){
@@ -266,13 +275,33 @@
             }
           });
         },
-        submitForm(){
+        async submitForm(){
           loadingMain.value = true
-          consultas.value.push({
-            descripcion: descripcion.value,estado: 'Pendiente',fechaInicio: timeBegin.value, fechaFin: timeEnd.value, doctor: doctor.value, usuario: 'Luis Andrade'
-          })
+          const user = auth.currentUser
+          const data = {//AQUI
+            descripcion: descripcion.value,
+            doctor: doctor.value,
+            estado: 'Pendiente',
+            fechaFin: Timestamp.fromDate( new Date(date.value.getFullYear(),date.value.getMonth(),date.value.getDate(),timeEnd.value.getHours(),timeEnd.value.getMinutes())) ,
+            fechaInicio: Timestamp.fromDate( new Date(date.value.getFullYear(),date.value.getMonth(),date.value.getDate(),timeBegin.value.getHours(),timeBegin.value.getMinutes())) ,
+            usuario: user.uid
+          }          
+          await db.collection('consultas').doc().set(data)
           loadingMain.value = false
           dialog.value = false
+          consultas.value = []
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+
+          consultasRef.forEach(doc => {
+            let data = doc.data()
+            consultas.value.push({
+            ...data,
+            fechaInicio: new Date(data.fechaInicio.seconds*1000),
+            fechaFin: new Date(data.fechaFin.seconds*1000),
+            doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            id: doc.id
+            })
+          });
         },
         async aprobarConsulta(docId){
           loadingAprobar.value = true
@@ -280,7 +309,43 @@
           await doc.update({estado: 'Aprobado'})
           loadingAprobar.value = false
           dialogAprobar.value = false
-          console.log(docId)
+          auth.onAuthStateChanged(async (user) =>{
+          consultas.value = []
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+
+          consultasRef.forEach(doc => {
+            let data = doc.data()
+            consultas.value.push({
+            ...data,
+            fechaInicio: new Date(data.fechaInicio.seconds*1000),
+            fechaFin: new Date(data.fechaFin.seconds*1000),
+            doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            id: doc.id
+            })
+          });
+        });
+        },
+        async cancelarCita(docId){
+          loadingCancelar.value = true
+          let doc = await db.collection('consultas').doc(docId)
+          await doc.update({estado: 'Cancelado'})
+          loadingCancelar.value = false
+          dialogCancelar.value = false
+          auth.onAuthStateChanged(async (user) =>{
+          consultas.value = []
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+
+          consultasRef.forEach(doc => {
+            let data = doc.data()
+            consultas.value.push({
+            ...data,
+            fechaInicio: new Date(data.fechaInicio.seconds*1000),
+            fechaFin: new Date(data.fechaFin.seconds*1000),
+            doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            id: doc.id
+            })
+          });
+        });
         }
       }
     },
