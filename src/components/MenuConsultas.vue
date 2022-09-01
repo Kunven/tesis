@@ -20,7 +20,12 @@
             <span class="text-h5">Formulario de Consultas</span>
           </v-card-title>
           <v-card-text>
-            <v-container>
+            <v-form
+              ref="form"
+              v-model="formValidation"
+              lazy-validation
+            >
+              <v-container>
               <v-row>
                 <v-col>
                   <v-text-field label="Descripcion" required v-model="descripcion"/>
@@ -90,9 +95,9 @@
                     </div>
                   </v-col>
                 </v-row>
-              </div>
-              
-            </v-container>
+              </div>              
+              </v-container>
+            </v-form>            
           </v-card-text>
           <v-card-actions>
             <v-btn :loading="loadingMain" @click="submitForm">Guardar</v-btn>
@@ -207,7 +212,8 @@
   import { Timestamp } from "firebase/firestore";
   import { ref,onMounted } from 'vue'
   export default {    
-    setup () {      
+    setup () {
+      const formValidation = ref(false)
       const dialogAprobar = ref(false)
       const dialogCancelar = ref(false)
       const doctoresRef = []
@@ -259,15 +265,24 @@
       let dialog = ref(false)
       return {
         doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
-        consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,
+        consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,formValidation,
         loadCalendar() {          
-          showSchedule.value = true        
+          showSchedule.value = true
+          //this.loadSchedule()
         },
         loadSchedule(){
           consultas_dia.value = []
+          let consultas_doctor = []
+          
           consultas.value.forEach(element => {            
-            if (element.fechaInicio.getMonth() == new Date(date.value).getMonth() + 1 ) {
-              if (element.fechaInicio.getDate() == new Date(date.value).getDate() + 1) {
+            let doc_id = doctoresRef.filter(e => e.name == element.doctor)
+            if (doc_id[0].id == doctor.value) {
+              consultas_doctor.push(element)
+            }
+          });          
+          consultas_doctor.forEach(element => {            
+            if (element.fechaInicio.getMonth() + 1 == new Date(date.value).getMonth() + 1 ) {
+              if (element.fechaInicio.getDate() + 1 == new Date(date.value).getDate() + 1) {
                 if (element.estado == 'Pendiente') {
                   consultas_dia.value.push(element)
                 } 
@@ -278,17 +293,36 @@
         async submitForm(){
           loadingMain.value = true
           const user = auth.currentUser
-          const data = {//AQUI
+          const data = {
             descripcion: descripcion.value,
             doctor: doctor.value,
             estado: 'Pendiente',
             fechaFin: Timestamp.fromDate( new Date(date.value.getFullYear(),date.value.getMonth(),date.value.getDate(),timeEnd.value.getHours(),timeEnd.value.getMinutes())) ,
             fechaInicio: Timestamp.fromDate( new Date(date.value.getFullYear(),date.value.getMonth(),date.value.getDate(),timeBegin.value.getHours(),timeBegin.value.getMinutes())) ,
             usuario: user.uid
-          }          
-          await db.collection('consultas').doc().set(data)
-          loadingMain.value = false
-          dialog.value = false
+          }
+          let valid = true
+          //let consultas_filter = consultas.value.filter(e => (doctoresRef.filter(f => .name == )) == doctor.value)
+          consultas.value.forEach(row => {
+            let dataDateInicio = new Date(data.fechaInicio.seconds*1000)
+            let dataDateFin = new Date(data.fechaFin.seconds*1000)
+            
+            if ((dataDateInicio >= row.fechaInicio && dataDateInicio <= row.fechaFin) || (dataDateFin <= row.fechaFin && dataDateFin >= row.fechaInicio)) {
+              valid = false
+            }
+          });
+          if (valid) {
+            await db.collection('consultas').doc().set(data)
+            loadingMain.value = false
+            dialog.value = false
+          }else{
+            alert('Existe un Conflicto entre Una o Mas Citas')
+            loadingMain.value = false
+            
+          }
+          
+          //loadingMain.value = false
+          //dialog.value = false
           consultas.value = []
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
 
