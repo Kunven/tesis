@@ -20,23 +20,10 @@
             <span class="text-h5">Formulario de la Ficha</span>
           </v-card-title>
           <v-card-text>
-            <v-container>
-              <v-row>
-                  <v-col>                    
-                    <v-date-picker v-model="date" class="my-2">
-                        <template v-slot="{ inputValue, inputEvents }">
-                            <input
-                            label="Fecha"                            
-                            :value="inputValue"
-                            v-on="inputEvents"
-                            />
-                        </template>
-                    </v-date-picker>
-                  </v-col>
-              </v-row>
+            <v-container>              
               <v-row>
                   <v-col>
-                    <v-text-field label="Nombres"/>
+                    <v-text-field label="Nombres" v-model="nombres"/>
                   </v-col>                  
               </v-row>
               <v-row>
@@ -50,6 +37,7 @@
                   </v-col>
                   <v-col>
                       <v-select
+                        v-model="Sexo"
                         :items="Sexos"
                         label="Sexo"
                       />
@@ -117,14 +105,14 @@
           >
               <td>{{ item.nombres }}</td>
               <td>{{ item.apellidos }}</td>
-              <td>{{ 123 }}</td>
+              <td>{{ item.descripcion }}</td>
               <td>{{ item.telefono }}</td>
-              <td>{{ item.edad }}</td>
+              <td>{{ item.Edad }}</td>
               <td>
                  <v-btn
                   prepend-icon="mdi-refresh"                  
                   color="primary"
-                >Update</v-btn>
+                >Actualizar</v-btn>
               </td>
           </tr>
         </tbody>
@@ -139,21 +127,46 @@
   export default {    
     setup () {
         let fichas = ref([])
+        const nombres = ref('')
+        const apellidos = ref('')
+        const Edad = ref('')
+        const Sexo = ref('Masculino')
+        const telefono = ref('')
+        const grupoSanguineo = ref('')
+        const alergias = ref('')
+        const observaciones = ref ('')
+        const cita = ref('')
+        let citas = ref([])
         onMounted(async () =>{
           auth.onAuthStateChanged(async (user) =>{
-            let fichasRef = await db.collection('fichas').where('doctor','==', user.uid).get()
-            fichasRef.forEach(doc => {
+            const fichasRef = await db.collection('fichas').where('doctor','==', user.uid).get()
+            const consultasRef = await db.collection('consultas').where('doctor','==', user.uid).get()
+            fichasRef.forEach(async doc => {
               let data = doc.data()
-              fichas.value.push(data)
+              let citaDoc = await db.collection('consultas').doc(data.cita).get()              
+              fichas.value.push({...data, descripcion: citaDoc.data().descripcion })
             });
-            console.log(fichas.value[0].nombres)
+            consultasRef.forEach(doc => {
+              citas.value.push(doc.data().descripcion)
+            });
           })          
         })
         const Sexos = ['Masculino','Femenino']
         let loading = ref(false)
         return {
+            nombres,apellidos,Edad,Sexo,telefono,grupoSanguineo,alergias,observaciones,cita,
+            fichas,
             loading,
-            Sexos
+            Sexos,
+            async submitForm (){ 
+              auth.onAuthStateChanged( async (user) => {
+                const data = {Edad: Edad, Sexo: Sexo, alergias: alergias, apellidos: apellidos, 
+                  cita: cita, doctor: user.uid, grupoSanguineo: grupoSanguineo, nombres: nombres,
+                  observaciones: observaciones, telefono: telefono  }
+                db.collection('fichas').doc().set(data)
+              })
+              
+            }
         }
     },
   }

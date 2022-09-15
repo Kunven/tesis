@@ -46,8 +46,6 @@ export default {
       })
     },
     authTest(){
-      console.log(this.auth)
-      console.log("2")
       const store = useMainStore()
       console.log(store.LoggedIn)
     }
