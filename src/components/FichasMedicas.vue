@@ -7,7 +7,7 @@
     <v-btn
       class="mx-2 my-1"
       prepend-icon="mdi-plus-circle"
-      color="primary"
+      color="blue"
     >Nueva Ficha
       <v-dialog
         v-model="dialog"

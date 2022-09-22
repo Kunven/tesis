@@ -4,10 +4,16 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [    
     {
-      path: "/test",
+      path: "/",
       name: "App",
       component: () => import("../components/HomePage.vue")
     },    
+    { 
+      path: "/funciones",
+      name: "funcionesPage",
+      component: () => import("../components/FuncionesPage.vue")
+    },
+    
   ],
 });
 
