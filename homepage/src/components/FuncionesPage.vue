@@ -16,7 +16,7 @@
       </v-card>
       <v-card class="my-2">
         <div class="row d-flex justify-content-center text-h3 font-weight-bold my-5">
-          #NOMBRE_APP es la aplicacion que te ayuda a conectarte con tus doctores preferidos.
+          #APP es la aplicacion que te ayuda a conectarte con tus doctores preferidos.
         </div>
       </v-card>
       <v-card class="my-2">

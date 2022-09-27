@@ -7,7 +7,7 @@
     <v-btn
       class="mx-2 my-1"
       prepend-icon="mdi-plus-circle"
-      color="blue"
+      color="primary"
     >Nueva Ficha
       <v-dialog
         v-model="dialog"
@@ -30,6 +30,17 @@
                   <v-col>
                       <v-text-field label="Apellidos"/>
                   </v-col>                  
+              </v-row>
+              <v-row>
+                <v-col>
+                      <v-select
+                        v-model="Cita"
+                        :items="citas"
+                        label="Cita"
+                        item-text="descripcion"
+                        item-value="id"
+                      />
+                  </v-col>
               </v-row>
               <v-row>
                   <v-col>
@@ -110,9 +121,9 @@
               <td>{{ item.Edad }}</td>
               <td>
                  <v-btn
-                  prepend-icon="mdi-refresh"                  
+                  prepend-icon="mdi-refresh"
                   color="primary"
-                >Actualizar</v-btn>
+                >Modificar</v-btn>
               </td>
           </tr>
         </tbody>
@@ -126,7 +137,7 @@
   //import { doc, getDoc } from "firebase/firestore";
   export default {    
     setup () {
-        let fichas = ref([])
+        let fichas = ref([])        
         const nombres = ref('')
         const apellidos = ref('')
         const Edad = ref('')
@@ -138,7 +149,7 @@
         const cita = ref('')
         let citas = ref([])
         onMounted(async () =>{
-          auth.onAuthStateChanged(async (user) =>{
+          auth.onAuthStateChanged(async (user) =>{            
             const fichasRef = await db.collection('fichas').where('doctor','==', user.uid).get()
             const consultasRef = await db.collection('consultas').where('doctor','==', user.uid).get()
             fichasRef.forEach(async doc => {
@@ -146,9 +157,11 @@
               let citaDoc = await db.collection('consultas').doc(data.cita).get()              
               fichas.value.push({...data, descripcion: citaDoc.data().descripcion })
             });
-            consultasRef.forEach(doc => {
-              citas.value.push(doc.data().descripcion)
+            consultasRef.forEach(doc => {              
+              citas.value.push({id: doc.id,descripcion: doc.data().descripcion})
+
             });
+            console.log(citas.value)
           })          
         })
         const Sexos = ['Masculino','Femenino']

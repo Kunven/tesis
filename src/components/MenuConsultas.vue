@@ -1,6 +1,6 @@
 <template>  
     <v-card class="mx-2 mt-3">
-        <h1>Consultas</h1>
+        <h1>Citas</h1>
     </v-card>
     <!-- BEGIN DIALOG -->
   <div>
@@ -17,7 +17,7 @@
           min-width="800"
         >
           <v-card-title>
-            <span class="text-h5">Formulario de Consultas</span>
+            <span class="text-h5">Formulario de la Cita</span>
           </v-card-title>
           <v-card-text>
             <v-form
@@ -143,58 +143,84 @@
               <td>{{ item.doctor }}</td>
               <td>{{ item.estado }}</td>
               <td>
-                <v-menu>
-      <template v-slot:activator="{ props }">
-        <v-btn
-          color="primary"
-          v-bind="props"
-        >
-          Acciones
-        </v-btn>
-      </template>
-      <v-list>
-        <!-- <v-list-item>
-          <v-btn>Actualizar</v-btn>
-        </v-list-item> -->
-        <v-list-item v-if="isDoc && item.estado != 'Aprobado'" >
-          <v-btn color="primary">Aprobar
-            <v-dialog activator="parent" v-model="dialogAprobar">
-              <v-card>
-                <v-card-title>Aprobar Cita</v-card-title>
-                <v-card-text>                  
-                  Esta Seguro que Desea Aprobar Esta Cita?
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn color="primary" @click="aprobarConsulta(item.id)" :loading="loadingAprobar">Si</v-btn>
-                  <v-btn @click="dialogAprobar = false">No</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-btn>
-        </v-list-item>
-        <v-list-item>          
-          <v-btn color="primary">Cancelar
-            <v-dialog activator="parent" v-model="dialogCancelar">
-              <v-card>
-                <v-card-title>Cancelar Cita</v-card-title>
-                <v-card-text>Esta Seguro que Desea Cancelar Esta Cita?</v-card-text>
-                <v-card-actions>
-                  <v-btn color="primary" @click="cancelarCita(item.id)" :loading="loadingCancelar">Si</v-btn>
-                  <v-btn @click="dialogCancelar = false">No</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-btn>
-        </v-list-item>
-        <v-list-item>
-          <v-btn color="primary">Pagar</v-btn>
-        </v-list-item>
-        <v-list-item disabled="true">
-          <v-btn color="primary">Realizar</v-btn>
-        </v-list-item>
+                <v-menu v-if="item.estado != 'Realizada'">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      color="primary"
+                      v-bind="props"
+                      prepend-icon="mdi-account-clock"
+                    >
+                      Acciones
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <!-- <v-list-item>
+                      <v-btn>Actualizar</v-btn>
+                    </v-list-item> -->
+                    <v-list-item v-if="isDoc && item.estado != 'Aprobado'" >
+                      <v-btn color="primary">Aprobar
+                        <v-dialog activator="parent" v-model="dialogAprobar">
+                          <v-card>
+                            <v-card-title>Aprobar Cita</v-card-title>
+                            <v-card-text>                  
+                              Esta Seguro que Desea Aprobar Esta Cita?
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-btn color="primary" @click="aprobarConsulta(item.id)" :loading="loadingAprobar">Si</v-btn>
+                              <v-btn @click="dialogAprobar = false">No</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-btn>
+                    </v-list-item>
+                    <v-list-item>          
+                      <v-btn color="primary">Cancelar
+                        <v-dialog activator="parent" v-model="dialogCancelar">
+                          <v-card>
+                            <v-card-title>Cancelar Cita</v-card-title>
+                            <v-card-text>Esta Seguro que Desea Cancelar Esta Cita?</v-card-text>
+                            <v-card-actions>
+                              <v-btn color="primary" @click="cancelarCita(item.id)" :loading="loadingCancelar">Si</v-btn>
+                              <v-btn @click="dialogCancelar = false">No</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-btn>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-btn color="primary">Pagar
+                        <v-dialog activator="parent" v-model="dialogPagar">
+                          <v-card>
+                            <v-card-title>Presione el boton para pagar</v-card-title>
+                            <v-card-text>                   
+                              <v-btn color="primary" :loading="loadingPagar" @click="pagarConsulta(item.id)">PAGAR</v-btn>
+                            </v-card-text>                
+                          </v-card>
+                        </v-dialog>
+                      </v-btn>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-btn color="primary" @click="RealizarConsulta" v-if="item.estado == 'Pagada'">Realizar
+                        <v-dialog activator="parent" v-model="dialogRealizar">
+                          <v-card>
+                            <v-card-title>Realizar Cita</v-card-title>
+                            <v-card-text>                  
+                              Esta cita fue creada como presencial. Desea marcarla como realizada?
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-btn color="primary" @click="realizarConsulta(item.id)" :loading="loadingRealizar">Si</v-btn>
+                              <v-btn @click="dialogRealizar = false">No</v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
+                      </v-btn>
+                    </v-list-item>
 
-      </v-list>
-    </v-menu>
+                  </v-list>
+                </v-menu>
+                <v-btn v-else color="success" prepend-icon="mdi-check">
+                  Completada!
+                </v-btn>
                 
               </td>
           </tr>
@@ -216,6 +242,8 @@
       const formValidation = ref(false)
       const dialogAprobar = ref(false)
       const dialogCancelar = ref(false)
+      const dialogRealizar = ref(false)
+      const dialogPagar = ref(false)      
       const doctoresRef = []
       let isDoc = false
       const store = useMainStore()
@@ -263,9 +291,35 @@
       let loadingAprobar = ref(false)
       let loadingCancelar= ref(false)
       let dialog = ref(false)
+      let loadingRealizar = ref(false)
+      let loadingPagar = ref(false)
       return {
         doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
-        consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,formValidation,
+        consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,formValidation,loadingRealizar,
+        dialogRealizar,dialogPagar,loadingPagar,
+        async realizarConsulta(docId){
+          loadingRealizar.value = true
+          let doc = await db.collection('consultas').doc(docId)
+          await doc.update({estado: 'Realizada'})
+          auth.onAuthStateChanged(async (user) =>{
+          consultas.value = []
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+
+          consultasRef.forEach(doc => {
+            let data = doc.data()
+            consultas.value.push({
+            ...data,
+            fechaInicio: new Date(data.fechaInicio.seconds*1000),
+            fechaFin: new Date(data.fechaFin.seconds*1000),
+            doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            id: doc.id
+            })
+          });
+        });
+          loadingRealizar.value = false
+          dialogRealizar.value = false
+          
+        },
         loadCalendar() {          
           showSchedule.value = true
           //this.loadSchedule()
@@ -380,6 +434,27 @@
             })
           });
         });
+        },
+        async pagarConsulta(docId){          
+          let doc = await db.collection('consultas').doc(docId)
+          await doc.update({estado: 'Pagada'})
+          auth.onAuthStateChanged(async (user) =>{
+          consultas.value = []
+          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+
+          consultasRef.forEach(doc => {
+            let data = doc.data()
+            consultas.value.push({
+            ...data,
+            fechaInicio: new Date(data.fechaInicio.seconds*1000),
+            fechaFin: new Date(data.fechaFin.seconds*1000),
+            doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            id: doc.id
+            })
+          });
+        });          
+          dialogPagar.value = false
+          
         }
       }
     },
