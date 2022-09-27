@@ -38,7 +38,7 @@
                                 </ul>
                             </div> <!-- navbar collapse -->
                             <div class="button add-list-button">
-                                <a href="javascript:void(0)" class="btn">Ir a la Aplicación</a>
+                                <a href="http://localhost:8080/home" class="btn">Ir a la Aplicación</a>
                             </div>
                         </nav>
                         <!-- End Navbar -->
