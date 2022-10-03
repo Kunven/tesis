@@ -258,11 +258,11 @@
         //get user
         
         //get Doctores
-        let doctores = await db.collection('users').where('rol','==', 1 ).get()
+        let doctores = await db.collection('users').where('rol','==', "1" ).get()
         doctores.forEach(doc => {
-          let data = doc.data()          
+          let data = doc.data()
           doctoresRef.push({name: data.first_name + ' ' + data.last_name,id: doc.id})
-        });        
+        });
         //get Consultas
         auth.onAuthStateChanged(async (user) =>{
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()

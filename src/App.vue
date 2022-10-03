@@ -39,10 +39,12 @@ export default {
     changeAuth(){
       this.auth = !this.auth
     },    
-    logoutTest(){      
+    logoutTest(){
+      this.$router.push('/login')
       auth.signOut().then(() =>{
-      const store = useMainStore()
-      store.LoggedIn = false
+        this.$router.push('/login')
+        const store = useMainStore()
+        store.LoggedIn = false      
       })
     },
     authTest(){
@@ -92,9 +94,14 @@ export default {
   margin: 0;
   width: 100%;
   min-height: 100vh;
-  background-color:#2c3e50;
+  background-color:#6e95a3 ;
+  /* #6e95a3 
+    #ebd8a0
+    #c5a576
+  */
 }
 .vertical-center {
+  
   /*Codigo 0% Original*/
   min-height: 100%; /* Fallback for browsers do NOT support vh unit */
   min-height: 100vh; /* These two lines are counted as one :-)       */

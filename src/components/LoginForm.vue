@@ -39,6 +39,7 @@ export default {
     loginUser(){      
       signInWithEmailAndPassword(auth, this.User,this.Password)
         .then(() => {
+          this.$router.push('/home')
           auth.onAuthStateChanged((user) =>{
             if (user) {
               const store = useMainStore()
@@ -46,9 +47,11 @@ export default {
                 LoggedIn: true
               })
             }
-          });          
+          });
         })
         .catch((error) => {
+          alert('Credenciales Incorrectas')
+
           const store = useMainStore()
           store.$patch({
             LoggedIn: false
