@@ -46,7 +46,7 @@
                 <v-row>
                   <v-col>
                     <label>Hora de Inicio de la Cita</label>
-                    <v-date-picker v-model="timeBegin" class="my-2" mode="time">
+                    <v-date-picker color="yellow" v-model="timeBegin" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
                             class="form-control"
@@ -59,7 +59,7 @@
                   </v-col>
                   <v-col>
                     <label>Hora de Fin de la Cita</label>
-                    <v-date-picker v-model="timeEnd" class="my-2" mode="time">
+                    <v-date-picker color="yellow" v-model="timeEnd" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
                             class="form-control"
@@ -74,6 +74,7 @@
                 <v-row >                  
                   <v-col>                    
                     <v-date-picker   
+                      color="yellow"
                       @dayclick="loadSchedule"                      
                       v-model="date"/>
                   </v-col>                 

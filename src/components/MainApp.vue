@@ -4,7 +4,7 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h6">
-            Aplicacion
+            Menu
           </v-list-item-title>          
         </v-list-item-content>
       </v-list-item>

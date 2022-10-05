@@ -3,6 +3,13 @@ import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 
 // Vuetify
+/* 
+    #6e95a3 - dark blue
+    #ebd8a0 - light brown
+    #c5a576 - brown
+    #aad2da - light blue
+
+  */
 import { createVuetify } from 'vuetify'
 
 const myCustomLightTheme  = {
@@ -12,7 +19,7 @@ const myCustomLightTheme  = {
     surface: '#ebd8a0',
     primary: '#c5a576',
     'primary-darken-1': '#3700B3',
-    secondary: '#03DAC6',
+    secondary: '#c5a576',
     'secondary-darken-1': '#018786',
     error: '#B00020',
     info: '#2196F3',

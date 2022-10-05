@@ -95,10 +95,6 @@ export default {
   width: 100%;
   min-height: 100vh;
   background-color:#6e95a3 ;
-  /* #6e95a3 
-    #ebd8a0
-    #c5a576
-  */
 }
 .vertical-center {
   

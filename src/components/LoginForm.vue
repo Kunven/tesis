@@ -15,7 +15,7 @@
             </v-row>
             <v-row>
                 <v-col>
-                <v-btn ><router-link to="/register" style="text-decoration: none; color: inherit;">Registro</router-link></v-btn>
+                <v-btn color="secondary"><router-link to="/register" style="text-decoration: none; color: inherit;">Registro</router-link></v-btn>
                 </v-col>
             </v-row>          
         </div>

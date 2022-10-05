@@ -2,7 +2,7 @@
 <v-card-text>
 	<v-row>
 		<v-col>
-			<v-btn class="ml-2">
+			<v-btn class="ml-2" color="primary">
 				<router-link to="/login" style="text-decoration: none; color: inherit;">Regresar</router-link>
 			</v-btn>					
 		</v-col>
