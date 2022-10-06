@@ -16,8 +16,8 @@
 					<v-text-field class="mr-5" v-model="phone" label="Telefono" />
 				</v-row>
 				<v-row>					
-					<v-text-field class="mr-5 ml-5" v-model="password" label="Contraseña" />
-					<v-text-field class="mr-5" v-model="password2" label="Repita la Contraseña" />				
+					<v-text-field class="mr-5 ml-5" :type="show1 ? 'text' : 'password'" v-model="password" label="Contraseña" />
+					<v-text-field class="mr-5" v-model="password2" :type="show1 ? 'text' : 'password'" label="Repita la Contraseña" />				
 				</v-row>
 				<v-row>
 					<v-text-field class="mr-5 ml-5" v-model="cedula" label="Cedula" />
@@ -72,7 +72,7 @@
 					}          
 					await db.collection('users').doc(user.user.uid).set(data)
 					alert('Usuario Creado con Excito')
-					// REDIRECT
+					this.$router.push('/home')
 				})
 				.catch((error) => {
 					alert(error)					

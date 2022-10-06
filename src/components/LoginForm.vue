@@ -1,4 +1,7 @@
 <template>
+    <v-card-title class="justify-center">
+      <v-img src="../assets/logo-lbrown.jpeg" :aspect-ratio="2"/>
+    </v-card-title>
     <v-card-text>
         <v-form style="width: 25vw;">
             <v-text-field v-model="User" label="Usuario"></v-text-field>
