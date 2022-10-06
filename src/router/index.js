@@ -33,6 +33,11 @@ const router = createRouter({
       name: "fichas",
       component: () => import ("../components/FichasMedicas.vue"),
     },
+    {
+      path: "/usuario",
+      name: "usuario",
+      component: () => import ("../components/MiUsuario.vue")
+    }
   ],
 });
 
