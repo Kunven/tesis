@@ -254,6 +254,7 @@
       }else{
         isDoc = true
       }      
+      console.log(userRole)
       let consultas = ref([])
       onMounted(async () =>{
         //get user
@@ -266,7 +267,13 @@
         });
         //get Consultas
         auth.onAuthStateChanged(async (user) =>{
-          let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+          let consultasRef = null
+          if (userRole == 1) {//Doctor
+            consultasRef = await db.collection('consultas').where('doctor','==',user.uid).where('estado','!=','Cancelado').get()
+          }else{//usuario
+            consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
+          }
+          
           consultasRef.forEach(doc => {
             let data = doc.data()
             consultas.value.push({
