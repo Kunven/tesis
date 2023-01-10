@@ -222,6 +222,4 @@ const cantones = [{"id":1,"canton":"Cuenca","id_provincia":1},
 {"id":222,"canton":"Las Golondrinas","id_provincia":25}, 
 {"id":223,"canton":"Manga del Cura","id_provincia":25}, 
 {"id":224,"canton":"El Piedrero","id_provincia":25}]
-export default {
-    cantones
-}
+export {cantones}

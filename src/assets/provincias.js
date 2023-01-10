@@ -23,7 +23,4 @@ const provincias = [{"id":1,"provincia":"Azuay"},
 {"id":23,"provincia":"Santo Domingo de Los Tsáchilas"}, 
 {"id":24,"provincia":"Santa Elena"}, 
 {"id":25,"provincia":"Zonas No Delimitadas"}]
-export default
-{
-    provincias
-}
+export {provincias}

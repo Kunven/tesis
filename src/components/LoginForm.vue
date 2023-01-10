@@ -1,13 +1,16 @@
 <template>
     <v-card-title class="justify-center">
-      <v-img src="../assets/logo-lbrown.jpeg" :aspect-ratio="2"/>
+      <h1>LOGO</h1>
     </v-card-title>
     <v-card-text>
         <v-form style="width: 25vw;">
-            <v-text-field v-model="User" label="Usuario"></v-text-field>
-            <v-text-field v-model="Password" label="Contraseña" type="password"></v-text-field>
+            <v-text-field v-model="User" label="Correo"></v-text-field>
+            <v-text-field v-model="Password" label="Contraseña" type="password"></v-text-field>            
             <div class="text-center">
                 <v-btn type="button" v-on:click="loginUser" class="w-75 justify-center" color="primary">Iniciar Sesion</v-btn>              
+            </div>
+            <div class="text-center mt-2">
+              <a href="passwordReset">Olvidaste tu Contraseña?</a>
             </div>
         </v-form>          
         <div class="text-center mt-5">
@@ -20,7 +23,13 @@
                 <v-col>
                 <v-btn color="secondary"><router-link to="/register" style="text-decoration: none; color: inherit;">Registro</router-link></v-btn>
                 </v-col>
-            </v-row>          
+            </v-row>
+            <v-row>
+              <v-col>
+                <p>Eres un Especialista y deseas trabajar con nosotros?</p>
+                <a href="registerDoc">Presiona Aqui</a>
+              </v-col>
+            </v-row>
         </div>
     </v-card-text>
 </template>

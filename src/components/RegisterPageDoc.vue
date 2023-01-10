@@ -9,8 +9,8 @@
 	</v-row>
 	<v-row>
 		<v-col>
-			<h1>Registro de Usuario</h1>
-			<h4>Llena el formulario con tu informacion para registrarte</h4>
+			<h1>Registro de Especialista</h1>
+			<h4>Llene el formulario con su informacion. Su cuenta tendra que ser aprobada por un administrador antes de poder usarla</h4>
 		</v-col>
 	</v-row>
 	<v-row class="mt-3">
@@ -34,7 +34,12 @@
 				<v-row>
           <v-select class="mr-5 ml-5" :items="items" item-title="provincia" item-value="id" label="Provincia" v-model="provincia"></v-select>
           <v-select class="mr-5 ml-5" :items="items2" item-title="canton" item-value="id" label="Canton" v-model="canton"></v-select>
+          <v-text-field class="mr-5 ml-5" v-model="cargo" label="Cargo" />
 				</v-row>
+        <v-row>          
+          <v-text-field class="mr-5 ml-5" v-model="titulo" label="Titulo URL" />
+          <v-text-field class="mr-5 ml-5" v-model="institucion" label="Institucion" />
+        </v-row>
 			</v-form>
 		</v-col>
 	</v-row>
@@ -64,10 +69,13 @@
       const password2 = ref('')
       const provincia = ref('')
       const canton = ref('')
+      const titulo = ref('')
+      const cargo = ref('')
+      const institucion = ref('')
       let items = provincias
       let items2 = cantones
       return{
-        provincia,canton,cedula,names,lastNames,phone,mail,direccion,user,password,password2,items,items2,handleRegister(){
+        titulo,cargo,institucion,provincia,canton,cedula,names,lastNames,phone,mail,direccion,user,password,password2,items,items2,handleRegister(){
           auth.createUserWithEmailAndPassword(mail,password2).then((usr) =>{
             //Creating user details
             usr.uid
