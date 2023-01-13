@@ -80,13 +80,13 @@
             //Creating user details
             usr.uid
             const data = {
-              cedula: cedula, first_name: names, last_name: lastNames, telefono: phone, correo: mail, direccion: direccion, 
-              usuario: user, provincia: provincia, canton: canton, created: Timestamp.fromDate(new Date)
+              cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, correo: mail.value, direccion: direccion.value, 
+              usuario: user,estado: 'Pendiente', provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date)
             }
-            db.collection('users').doc().set(data)
+            db.collection('especialistas').doc(usr.uid).set(data)
             //TODO MODAL REGISTRO
           }).catch((error) => {
-            error
+            alert(error)
             //Exception handling TODO
           })
         }
