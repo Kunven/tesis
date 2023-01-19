@@ -1,14 +1,33 @@
 <template>
   <div v-if="userRole == 2">
     <v-card class="mx-2 mt-3">
-      <h1>Permisos por Rol</h1>
+      <h1>Roles</h1>
     </v-card>
+    <v-dialog v-model="dialogNew">
+      <template v-slot:activator="{ props }">
+        <v-btn
+          class="mx-2 my-1" prepend-icon="mdi-plus-circle"
+          color="primary"
+          v-bind="props"          
+        >
+          Nuevo Rol
+        </v-btn>
+      </template>
+      <v-card>
+        <v-card-title><h1>Nuevo Rol</h1></v-card-title>
+        <v-card-text>
+          <v-text-field class="mr-5 ml-5" v-model="inputRol" label="Rol" />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="newRol">Guardar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>        
     <v-table class="mx-2 my-1">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Rol</th>
-          <th>Modificado</th>
+          <th>Rol</th>          
           <th>Acciones</th>
         </tr>
       </thead>
@@ -18,8 +37,7 @@
           :key="item.id"
         > 
           <td>{{ item.id }}</td>
-          <td>{{ item.nombre }}</td>
-          <td>17/01/2023</td>
+          <td>{{ item.nombre }}</td>          
           <td>
             <v-dialog v-model="modalRoles">
               <template v-slot:activator="{ props }">
@@ -66,7 +84,9 @@ import { ref,onMounted } from 'vue'
 import {pantallas} from '../assets/pantallas.js'
 export default {
   setup() {
+    let dialogNew = ref(false)    
     const store = useMainStore()
+    let inputRol = ref('')
     let permisosRol = ref([{index: 1, pantalla_id: 1}])
     let modalRoles = ref(false)
     let userRole = store.rol
@@ -82,7 +102,7 @@ export default {
       });      
     })
     return{
-      permisosRol,pantallasData,rol,userRole,roles,modalRoles,async setRol(id,nombre){
+      dialogNew,inputRol,permisosRol,pantallasData,rol,userRole,roles,modalRoles,async setRol(id,nombre){
         permisosRol.value = []
         rol.value = nombre
         rolId.value = id
@@ -97,7 +117,20 @@ export default {
       },addRol(){
         permisosRol.value.push({})
       },async submitForm(){
+        //TO DO
         console.log(permisosRol)
+      },async newRol(){
+        const data = {nombre: inputRol.value}
+        console.log(roles.value.length)
+        console.log(data)
+        await db.collection('roles').doc(roles.value.length.toString()).set(data)
+        roles.value = []
+        let rolesRef = await db.collection('roles').get()
+        rolesRef.forEach(row => {
+          let data = row.data()
+          roles.value.push({id: row.id, nombre: data.nombre})
+        });        
+        dialogNew.value = false
       }
     }  
   },

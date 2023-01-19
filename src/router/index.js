@@ -19,9 +19,19 @@ const router = createRouter({
       component: () => import ("../components/RegisterPage.vue"),
     },
     {
+      path: "/parametros",
+      name: "params",
+      component: () => import ("../components/ParametrosPage.vue"),
+    },
+    {
       path:"/permisos",
       name: "permisos",
       component: () => import ("../components/PermisosRol.vue")
+    },
+    {
+      path:"/ubicaciones",
+      name: "ubicaciones",
+      component: () => import ("../components/UbicacionesParam.vue")
     },
     {
       path: "/passwordReset",

@@ -74,19 +74,19 @@
 		let items = ref(provincias)
 		let items2 = ref(cantones)
 		return{
-			msg,showError,showSuccess,provincia,canton,cedula,names,lastNames,phone,mail,direccion,user,password,password2,items,items2,handleRegister(){
+			msg,showError,showSuccess,provincia,canton,cedula,names,lastNames,phone,mail,direccion,user,password,password2,items,items2,async handleRegister(){
 			if (mail.value == '' || password.value == '' || password2.value == '') {
 				msg.value == "El formulario esta incompleto. Tiene que llenar como minimo un correo y una contraseña"
 				showError.value = true
 			}else{
-				auth.createUserWithEmailAndPassword(mail,password2).then((usr) =>{
+				await auth.createUserWithEmailAndPassword(mail,password2).then(async (usr) =>{
 					//Creating user details
 					usr.uid
 					const data = {
 					cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, correo: mail.value, direccion: direccion.value, 
 					usuario: user.value, provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date)
 					}
-					db.collection('users').doc(usr.uid).set(data)
+					await db.collection('users').doc(usr.uid).set(data)
 					msg.value = "Usuario Creado con Exito"
 					showSuccess.value = true
 					//TODO MODAL REGISTRO
