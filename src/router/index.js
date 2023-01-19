@@ -19,6 +19,11 @@ const router = createRouter({
       component: () => import ("../components/RegisterPage.vue"),
     },
     {
+      path:"/permisos",
+      name: "permisos",
+      component: () => import ("../components/PermisosRol.vue")
+    },
+    {
       path: "/passwordReset",
       name: "passReset",
       component: () => import ("../components/PasswordReset.vue"),
