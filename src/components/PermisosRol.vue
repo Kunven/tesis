@@ -27,44 +27,88 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Rol</th>          
+          <th>Rol</th>
+          <th>Activo</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="item in roles"
+          v-for="item in roles.filter(e => e.activo != '0')"
           :key="item.id"
         > 
           <td>{{ item.id }}</td>
-          <td>{{ item.nombre }}</td>          
+          <td>{{ item.nombre }}</td>
+          <td>{{ item.activo }}</td>
           <td>
-            <v-dialog v-model="modalRoles">
+            <v-menu>
               <template v-slot:activator="{ props }">
                 <v-btn
                   color="primary"
                   v-bind="props"
-                  @click="setRol(item.id,item.nombre)"
+                  prepend-icon="mdi-account-clock"
                 >
-                  Modificar Permisos
+                  Acciones
                 </v-btn>
               </template>
-              <v-card>
-                <v-card>Permisos de {{ rol }}</v-card>
-                <v-card-text>
-                  <v-btn class="mb-5" color="primary" @click="addRol">Agregar</v-btn>
-                  <div v-for="(item,index) in permisosRol" :key="item">
-                    <v-row>
-                      <v-select class="mr-5 ml-5" :items="pantallasData" item-title="nombre" item-value="id" label="Pantallas" v-model="item.pantalla_id"></v-select>
-                      <v-btn color="primary" @click="delRol(index)">Quitar</v-btn>
-                    </v-row>                  
-                  </div>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn @click="submitForm">Submit</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+              <v-list>
+                <v-list-item>
+                  <v-dialog v-model="modalRoles">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        color="primary"
+                        v-bind="props"
+                        @click="setRol(item.id,item.nombre)"
+                      >
+                        Modificar Permisos
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card>Permisos de {{ rol }}</v-card>
+                      <v-card-text>
+                        <v-btn class="mb-5" color="primary" @click="addRol">Agregar</v-btn>
+                        <div v-for="(item,index) in permisosRol" :key="item">
+                          <v-row>
+                            <v-select class="mr-5 ml-5" :items="pantallasData" item-title="nombre" item-value="id" label="Pantallas" v-model="item.pantalla_id"></v-select>
+                            <v-btn color="primary" @click="delRol(index)">Quitar</v-btn>
+                          </v-row>                  
+                        </div>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn @click="submitForm">Submit</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+                <v-list-item>
+                  <v-dialog v-model="modalDelete">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        color="primary"
+                        v-bind="props"                        
+                      >
+                        Desactivar Rol
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title><h1>Desactivar Rol</h1></v-card-title>                      
+                      <v-card-text>
+                        <v-row class="">
+                          <v-alert v-if="showError" type="error">{{ msg }}</v-alert>                          
+                        </v-row>
+                        <v-row class="mt-5">
+                          Esta Seguro que Desea Desactivar Este Rol?
+                        </v-row>                        
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn @click="delRolDB(item.id)">Si</v-btn>
+                        <v-btn @click="modalDelete = false">No</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+              </v-list>
+            </v-menu>            
           </td>
         </tr>
       </tbody>
@@ -84,6 +128,9 @@ import { ref,onMounted } from 'vue'
 import {pantallas} from '../assets/pantallas.js'
 export default {
   setup() {
+    let showError = ref(false)
+    let msg = ref('Este Rol Tiene Usuarios Activos. No se puede desactivar')
+    let modalDelete = ref(false)
     let dialogNew = ref(false)    
     const store = useMainStore()
     let inputRol = ref('')
@@ -98,11 +145,11 @@ export default {
       let rolesRef = await db.collection('roles').get()
       rolesRef.forEach(row => {
         let data = row.data()
-        roles.value.push({id: row.id, nombre: data.nombre})
+        roles.value.push({id: row.id, nombre: data.nombre, activo: data.activo})
       });      
     })
     return{
-      dialogNew,inputRol,permisosRol,pantallasData,rol,userRole,roles,modalRoles,async setRol(id,nombre){
+      showError,msg,modalDelete,dialogNew,inputRol,permisosRol,pantallasData,rol,userRole,roles,modalRoles,async setRol(id,nombre){
         permisosRol.value = []
         rol.value = nombre
         rolId.value = id
@@ -120,17 +167,34 @@ export default {
         //TO DO
         console.log(permisosRol)
       },async newRol(){
-        const data = {nombre: inputRol.value}
-        console.log(roles.value.length)
-        console.log(data)
+        const data = {nombre: inputRol.value, activo: "1"}        
         await db.collection('roles').doc(roles.value.length.toString()).set(data)
         roles.value = []
         let rolesRef = await db.collection('roles').get()
         rolesRef.forEach(row => {
           let data = row.data()
-          roles.value.push({id: row.id, nombre: data.nombre})
-        });        
+          roles.value.push({id: row.id, nombre: data.nombre, activo: data.activo})
+        });
         dialogNew.value = false
+      },async delRolDB(id){
+        let valRol = await db.collection('users').where("rol","==",id.toString()).get()
+        let valid = true
+        valRol.forEach(element => {
+          element
+          valid = false
+        });
+        if (valid) {
+          await db.collection('roles').doc(id.toString()).update({activo: "0"})
+          roles.value = []
+          let rolesRef = await db.collection('roles').get()
+          rolesRef.forEach(row => {
+            let data = row.data()
+            roles.value.push({id: row.id, nombre: data.nombre, activo: data.activo})
+          });
+          dialogNew.value = false
+        }else{
+          showError.value = true
+        }        
       }
     }  
   },
