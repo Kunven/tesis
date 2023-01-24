@@ -84,30 +84,7 @@
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
-                </v-list-item>
-                <v-list-item v-if="item.rol == '1'">
-                  <v-dialog v-model="modalAprobar">
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        color="primary"
-                        v-bind="props"
-                        @click="modalAprobar = true"
-                      >
-                        Horarios
-                      </v-btn>
-                    </template>
-                    <v-card>
-                      <v-card>
-                        <v-card-title>Aprobar Usuario</v-card-title>
-                        <v-card-text>Desea Aprobar este Usuario?</v-card-text>
-                        <v-card-actions>
-                          <v-btn @click="aprobarUsuario(item.id)">Si</v-btn>
-                          <v-btn color="primary" @click="modalAprobar = false">No</v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </v-card>
-                  </v-dialog>
-                </v-list-item>
+                </v-list-item>                
                 <v-list-item v-if="item.rol == '1' && item.estado == 'pendiente'">
                   <v-dialog v-model="modalAprobar">
                     <template v-slot:activator="{ props }">
@@ -211,7 +188,7 @@
         usuariosRef.forEach(row => {
           let data = row.data()          
           usuarios.value.push({id: row.id, cedula: data.cedula, first_name: data.first_name, last_name: data.last_name, rol: data.rol, telefono: data.telefono, estado: data.estado })
-        });        
+        });
       });
       return {
         tarifas,tarifasDoc,modalAprobar,usuarios,roles,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
@@ -245,8 +222,17 @@
           dialogUpdate.value = false
           this.$router.push('/admin')
         },async aprobarUsuario(id){
-          //TODO MAIL
-          id
+          await db.collection('users').doc(id).update({estado: 'aprobado'}).then(async () => {
+            usuarios.value = []
+            let usuariosRef = await db.collection('users').get()
+            usuariosRef.forEach(row => {
+              let data = row.data()          
+              usuarios.value.push({id: row.id, cedula: data.cedula, first_name: data.first_name, last_name: data.last_name, rol: data.rol, telefono: data.telefono, estado: data.estado })
+            });
+            modalAprobar.value = false
+          }).catch((e) => {
+            alert(e)
+          })
         },addTar(){
           tarifasDoc.value.push({})
         },delTar(index){

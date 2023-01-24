@@ -25,7 +25,7 @@ const router = createRouter({
     },
     {
       path: "/adminCitas",
-      name: "adminHome",
+      name: "adminCitas",
       component: () => import ("../components/AdminCitas.vue"),
     },
     {
