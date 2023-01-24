@@ -19,6 +19,16 @@ const router = createRouter({
       component: () => import ("../components/RegisterPage.vue"),
     },
     {
+      path: "/adminHome",
+      name: "adminHome",
+      component: () => import ("../components/AdminHome.vue"),
+    },
+    {
+      path: "/adminCitas",
+      name: "adminHome",
+      component: () => import ("../components/AdminCitas.vue"),
+    },
+    {
       path: "/parametros",
       name: "params",
       component: () => import ("../components/ParametrosPage.vue"),

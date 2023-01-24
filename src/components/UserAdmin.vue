@@ -24,6 +24,9 @@
         Telefono
         </th>
         <th class="text-left">
+        Estado
+        </th>
+        <th class="text-left">
         Acciones
         </th>
       </tr>
@@ -42,42 +45,131 @@
           <div v-if="item.rol == 2">Administrador</div>
         </td>
         <td>{{ item.telefono }}</td>
+        <td>{{ item.estado }}</td>
         <td>
-          <v-btn color="primary" v-bind="props" prepend-icon="mdi-account-clock" @click="loadUser(item.id)">
-            Modificar
-            <v-dialog fullscreen activator="parent" v-model="dialogUpdate"  width="auto ">
-              <v-card>
-                <v-card-title>Modificar Usuario</v-card-title>
-                <v-card-text>
-                  <div hidden><v-text-field class="mr-5 ml-5" v-model="UserId" /></div>                  
-                  <v-row>
-                    <v-text-field class="mr-5 ml-5" v-model="UserFirstName" label="Nombres" />
-				          </v-row>				          
-                  <v-row>
-                    <v-text-field class="mr-5 ml-5" v-model="UserLastName" label="Apellidos" />                    
-                  </v-row>
-                  <v-row>
-                    <v-text-field class="mr-5" v-model="UserTelefono" label="Telefono" />
-                  </v-row>
-                  <v-row>
-                    <v-text-field class="mr-5 ml-5" v-model="UserCedula" label="Cedula" /> 
-                  </v-row>
-                  <v-row>
-                    <v-select
-                      v-model="UserRol"
-                      :items="roles"
-                      item-title="label"
-                      item-value="rol"
-                      label="Rol"
-                    ></v-select>
-                  </v-row>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn @click="guardar" :loading="loadingGuardar">Guardar</v-btn>                  
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-btn>
+          <v-menu>
+            <template v-slot:activator="{ props }">
+                <v-btn
+                  color="primary"
+                  v-bind="props"
+                  prepend-icon="mdi-account-clock"
+                >
+                  Acciones
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item v-if="item.rol == '1'">
+                  <v-dialog>
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        color="primary"
+                        v-bind="props"                        
+                      >
+                        Tarifas
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card>Tarifas</v-card>
+                      <v-card-text>
+                        <v-btn class="mb-5" color="primary" @click="addTar">Agregar</v-btn>
+                        <div v-for="(item,index) in tarifasDoc" :key="item">
+                          <v-row>
+                            <v-select class="mr-5 ml-5" :items="tarifas" item-title="nombre" item-value="id" label="Tarifas" v-model="item.tarifa"></v-select>
+                            <v-btn color="primary" @click="delTar(index)">Quitar</v-btn>
+                          </v-row>                  
+                        </div>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn @click="saveTar">Submit</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+                <v-list-item v-if="item.rol == '1'">
+                  <v-dialog v-model="modalAprobar">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        color="primary"
+                        v-bind="props"
+                        @click="modalAprobar = true"
+                      >
+                        Horarios
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card>
+                        <v-card-title>Aprobar Usuario</v-card-title>
+                        <v-card-text>Desea Aprobar este Usuario?</v-card-text>
+                        <v-card-actions>
+                          <v-btn @click="aprobarUsuario(item.id)">Si</v-btn>
+                          <v-btn color="primary" @click="modalAprobar = false">No</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+                <v-list-item v-if="item.rol == '1' && item.estado == 'pendiente'">
+                  <v-dialog v-model="modalAprobar">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        color="primary"
+                        v-bind="props"
+                        @click="modalAprobar = true"
+                      >
+                        Aprobar
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card>
+                        <v-card-title>Aprobar Usuario</v-card-title>
+                        <v-card-text>Desea Aprobar este Usuario?</v-card-text>
+                        <v-card-actions>
+                          <v-btn @click="aprobarUsuario(item.id)">Si</v-btn>
+                          <v-btn color="primary" @click="modalAprobar = false">No</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+                <v-list-item>
+                  <v-btn color="primary" v-bind="props" prepend-icon="mdi-account-clock" @click="loadUser(item.id)">
+                    Modificar
+                    <v-dialog fullscreen activator="parent" v-model="dialogUpdate"  width="auto ">
+                      <v-card>
+                        <v-card-title>Modificar Usuario</v-card-title>
+                        <v-card-text>
+                          <div hidden><v-text-field class="mr-5 ml-5" v-model="UserId" /></div>                  
+                          <v-row>
+                            <v-text-field class="mr-5 ml-5" v-model="UserFirstName" label="Nombres" />
+                          </v-row>				          
+                          <v-row>
+                            <v-text-field class="mr-5 ml-5" v-model="UserLastName" label="Apellidos" />                    
+                          </v-row>
+                          <v-row>
+                            <v-text-field class="mr-5" v-model="UserTelefono" label="Telefono" />
+                          </v-row>
+                          <v-row>
+                            <v-text-field class="mr-5 ml-5" v-model="UserCedula" label="Cedula" /> 
+                          </v-row>
+                          <v-row>
+                            <v-select
+                              v-model="UserRol"
+                              :items="roles"
+                              item-title="label"
+                              item-value="rol"
+                              label="Rol"
+                            ></v-select>
+                          </v-row>
+                        </v-card-text>
+                        <v-card-actions>
+                          <v-btn @click="guardar" :loading="loadingGuardar">Guardar</v-btn>                  
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
+                  </v-btn>
+                </v-list-item>
+              </v-list>
+          </v-menu>          
         </td>
       </tr>
     </tbody>
@@ -98,6 +190,9 @@
 
   export default {
     setup () {
+      let tarifas = [{id:1, nombre: 'Psicologo General',costo_hora:10}, {id:2, nombre: 'Psiquiatra Clinico',costo_hora:20}, {id:3, nombre: 'Terapeuta',costo_hora: 30}]
+      let tarifasDoc = ref([])
+      let modalAprobar = ref(false)
       let usuarios = ref([])
       let UserCedula = ref('')
       let userId = ref('')
@@ -110,16 +205,16 @@
       const store = useMainStore()
       let userRole = store.rol
       let loadingGuardar = ref(false)
-      let roles = [{rol: "0", label: 'Usuario General'},{rol: "1", label: 'Doctor'},{rol:"2", label: 'Administrador'}]
+      let roles = [{rol: "0", label: 'Usuario General'},{rol: "1", label: 'Doctor'},{rol:"2", label: 'Administrador'}]//TODO
       onMounted(async () =>{
         let usuariosRef = await db.collection('users').get()        
         usuariosRef.forEach(row => {
           let data = row.data()          
-          usuarios.value.push({id: row.id, cedula: data.cedula, first_name: data.first_name, last_name: data.last_name, rol: data.rol, telefono: data.telefono })
+          usuarios.value.push({id: row.id, cedula: data.cedula, first_name: data.first_name, last_name: data.last_name, rol: data.rol, telefono: data.telefono, estado: data.estado })
         });        
       });
       return {
-        usuarios,roles,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
+        tarifas,tarifasDoc,modalAprobar,usuarios,roles,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
         async loadUser(item){      
           console.log(item)    
           let userRef = await db.collection('users').doc(item).get()
@@ -149,7 +244,16 @@
           });
           dialogUpdate.value = false
           this.$router.push('/admin')
-        }        
+        },async aprobarUsuario(id){
+          //TODO MAIL
+          id
+        },addTar(){
+          tarifasDoc.value.push({})
+        },delTar(index){
+          tarifasDoc.value.splice(index, 1)
+        },saveTar(){
+          //TODO
+        }
       }
       
     }
