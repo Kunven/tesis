@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import ("../components/AdminHome.vue"),
     },
     {
+      path: "/adminPagos",
+      name: "adminHome",
+      component: () => import ("../components/AdminPagos.vue"),
+    },
+    {
       path: "/adminCitas",
       name: "adminCitas",
       component: () => import ("../components/AdminCitas.vue"),

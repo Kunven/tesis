@@ -37,10 +37,10 @@
           v-for="item in roles.filter(e => e.activo != '0')"
           :key="item.id"
         > 
-          <td>{{ item.id }}</td>
-          <td>{{ item.nombre }}</td>
-          <td>{{ item.activo }}</td>
-          <td>
+          <td class="text-center">{{ item.id }}</td>
+          <td class="text-center">{{ item.nombre }}</td>
+          <td class="text-center">{{ item.activo }}</td>
+          <td class="text-center">
             <v-menu>
               <template v-slot:activator="{ props }">
                 <v-btn

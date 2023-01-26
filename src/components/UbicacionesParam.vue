@@ -11,8 +11,8 @@
             </thead>
             <tbody>
                 <tr v-for="item in provinciasTable" :key="item.id" >
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.provincia }}</td>
+                    <td class="text-center">{{ item.id }}</td>
+                    <td class="text-center">{{ item.provincia }}</td>
                 </tr>
             </tbody>
         </v-table>
@@ -26,8 +26,8 @@
             </thead>
             <tbody>
                 <tr v-for="item in cantonesTable" :key="item.id" >
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.canton }}</td>
+                    <td class="text-center">{{ item.id }}</td>
+                    <td class="text-center">{{ item.canton }}</td>
                 </tr>
             </tbody>
         </v-table>

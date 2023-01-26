@@ -113,22 +113,22 @@
     <v-table class="mx-2 my-1">
         <thead>
           <tr>
-              <th class="text-left">
+              <th class="text-center">
               Descripcion
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Fecha Inicio
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Fecha Fin
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Doctor
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Estado
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Acciones
               </th>
           </tr>
@@ -138,12 +138,12 @@
               v-for="item in consultas"
               :key="item.name"
           >
-              <td>{{ item.descripcion }}</td>
-              <td>{{ item.fechaInicio }}</td>
-              <td>{{ item.fechaFin }}</td>
-              <td>{{ item.doctor }}</td>
-              <td>{{ item.estado }}</td>
-              <td>
+              <td class="text-center">{{ item.descripcion }}</td>
+              <td class="text-center">{{ item.fechaInicio }}</td>
+              <td class="text-center">{{ item.fechaFin }}</td>
+              <td class="text-center">{{ item.doctor }}</td>
+              <td class="text-center">{{ item.estado }}</td>
+              <td class="text-center">
                 <v-menu v-if="item.estado != 'Realizada'">
                   <template v-slot:activator="{ props }">
                     <v-btn

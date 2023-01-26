@@ -22,6 +22,8 @@
         <v-list-item prepend-icon="mdi-forum" title="Administracion" value="adminHome" href="adminHome" v-if="rol == 2"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Administracion de Usuarios" value="usuario" href="admin" v-if="rol == 2"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Administracion de Citas" value="usuario" href="adminCitas" v-if="rol == 2"></v-list-item>
+        <v-list-item prepend-icon="mdi-forum" title="Administracion de Pagos" value="usuario" href="adminPagos" v-if="rol == 2"></v-list-item>
+        <v-list-item prepend-icon="mdi-forum" title="Administracion de Fichas Medicas" value="usuario" href="fichas" v-if="rol == 2"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Roles" value="usuario" href="permisos" v-if="rol == 2"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Ubicaciones" value="usuario" href="ubicaciones" v-if="rol == 2"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Parametros" value="usuario" href="parametros" v-if="rol == 2"></v-list-item>

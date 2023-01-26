@@ -89,22 +89,22 @@
     <v-table class="mx-2 my-1">
         <thead>
           <tr>
-              <th class="text-left">
+              <th class="text-center">
               Nombres
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Apellidos
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Cita - Descripcion
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Telefono
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Edad
               </th>
-              <th class="text-left">
+              <th class="text-center">
               Acciones
               </th>
           </tr>
@@ -114,12 +114,12 @@
               v-for="item in fichas"
               :key="item.nombres"
           >
-              <td>{{ item.nombres }}</td>
-              <td>{{ item.apellidos }}</td>
-              <td>{{ item.descripcion }}</td>
-              <td>{{ item.telefono }}</td>
-              <td>{{ item.Edad }}</td>
-              <td>
+              <td class="text-center">{{ item.nombres }}</td>
+              <td class="text-center">{{ item.apellidos }}</td>
+              <td class="text-center">{{ item.descripcion }}</td>
+              <td class="text-center">{{ item.telefono }}</td>
+              <td class="text-center">{{ item.Edad }}</td>
+              <td class="text-center">
                  <v-btn
                   prepend-icon="mdi-refresh"
                   color="primary"

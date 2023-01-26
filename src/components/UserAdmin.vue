@@ -8,25 +8,25 @@
   <v-table class="mx-2 my-1">
     <thead>
       <tr>   
-        <th class="text-left">
+        <th class="text-center">
         Id
-        </th>     
-        <th class="text-left">
+        </th>
+        <th class="text-center">
         Nombre
         </th>     
-        <th class="text-left">
+        <th class="text-center">
         Cedula
         </th>        
-        <th class="text-left">
+        <th class="text-center">
         Rol
         </th>
-        <th class="text-left">
+        <th class="text-center">
         Telefono
         </th>
-        <th class="text-left">
+        <th class="text-center">
         Estado
         </th>
-        <th class="text-left">
+        <th class="text-center">
         Acciones
         </th>
       </tr>
@@ -36,17 +36,17 @@
         v-for="item in usuarios"
         :key="item.id"
       > 
-        <td>{{ item.id }}</td>        
-        <td>{{ item.first_name }} {{item.last_name}}</td>
-        <td>{{ item.cedula }}</td>        
-        <td>
+        <td class="text-center">{{ item.id }}</td>        
+        <td class="text-center">{{ item.first_name }} {{item.last_name}}</td>
+        <td class="text-center">{{ item.cedula }}</td>        
+        <td class="text-center">
           <div v-if="item.rol == 0">Usuario General</div>
           <div v-if="item.rol == 1">Doctor</div>
           <div v-if="item.rol == 2">Administrador</div>
         </td>
-        <td>{{ item.telefono }}</td>
-        <td>{{ item.estado }}</td>
-        <td>
+        <td class="text-center">{{ item.telefono }}</td>
+        <td class="text-center">{{ item.estado }}</td>
+        <td class="text-center">
           <v-menu>
             <template v-slot:activator="{ props }">
                 <v-btn

@@ -36,8 +36,8 @@
             <tr v-for="item in parametros"
                 :key="item.key"
             >
-                <td>{{ item.key }}</td>
-                <td>{{ item.value }}</td>
+                <td class="text-center">{{ item.key }}</td>
+                <td class="text-center">{{ item.value }}</td>
             </tr>
         </tbody>
     </v-table>
