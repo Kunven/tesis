@@ -65,10 +65,11 @@
 <script>
 import { ref,onMounted } from 'vue'
 import { db } from "../firebase.js"
+
 export default {    
     setup() {
         let modalPagos = ref(false)
-        let pagos = ref([]);
+        let pagos = ref([]);        
         onMounted(async () =>{
             let pagosRef = await db.collection('pagos').get()        
             pagosRef.forEach(row => {
@@ -86,12 +87,10 @@ export default {
                     let doc = await db.collection('pagos').doc(doc_id)
                     await doc.update({estado: 'Rechazado'})
                 }
-                pagos.value = []
-                let pagosRef = await db.collection('pagos').get()        
-                pagosRef.forEach(row => {
-                let data = row.data()          
-                pagos.value.push({id: row.id, cliente: data.cliente, consulta: data.consulta, estado: data.estado, doctor: data.doctor})
-                });
+                pagos.value = []                
+                //SEND MAIL
+                
+                //END SEND MAIL                
                 modalPagos.value = false
 
             }

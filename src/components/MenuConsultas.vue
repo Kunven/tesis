@@ -41,6 +41,11 @@
                 @update:modelValue="loadCalendar"                
                 ></v-select>
               </v-row>
+              <v-row>
+                <v-select v-model="tarifa" :items="tarifasRef" item-title="name" item-value="id" label="Seleccione una Tarifa">
+                  
+                </v-select>
+              </v-row>
               <div v-if="showSchedule">
                 <span class="text-h5">Seleccione la Fecha y Hora de la Cita</span>
                 <v-row>
@@ -194,7 +199,7 @@
                           <v-card>
                             <v-card-title>Presione el boton para pagar</v-card-title>
                             <v-card-text>                   
-                              <v-btn color="primary" :loading="loadingPagar" @click="pagarConsulta(item.id)">PAGAR</v-btn>
+                              <v-btn color="primary" :loading="loadingPagar" @click="pagarConsulta(item.doctor_id,item.usuario,item.id)">PAGAR</v-btn>
                             </v-card-text>                
                           </v-card>
                         </v-dialog>
@@ -281,6 +286,7 @@
             fechaInicio: new Date(data.fechaInicio.seconds*1000),
             fechaFin: new Date(data.fechaFin.seconds*1000),
             doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            doctor_id: doctoresRef.filter(e => e.id == data.doctor)[0].id,
             id: doc.id
             })
           });          
@@ -301,8 +307,10 @@
       let dialog = ref(false)
       let loadingRealizar = ref(false)
       let loadingPagar = ref(false)
+      let tarifa = ref(0)
+      let tarifasRef = ref([{id: 1,name:'Psicologo'},{id: 2,name:'Terapeuta'},{id: 2,name:'Especialista'}])
       return {
-        doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
+        tarifa,tarifasRef,doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
         consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,formValidation,loadingRealizar,
         dialogRealizar,dialogPagar,loadingPagar,
         async realizarConsulta(docId){
@@ -320,6 +328,7 @@
             fechaInicio: new Date(data.fechaInicio.seconds*1000),
             fechaFin: new Date(data.fechaFin.seconds*1000),
             doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            doctor_id: doctoresRef.filter(e => e.id == data.doctor)[0].id,
             id: doc.id
             })
           });
@@ -395,6 +404,7 @@
             fechaInicio: new Date(data.fechaInicio.seconds*1000),
             fechaFin: new Date(data.fechaFin.seconds*1000),
             doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            doctor_id: doctoresRef.filter(e => e.id == data.doctor)[0].id,
             id: doc.id
             })
           });
@@ -416,6 +426,7 @@
             fechaInicio: new Date(data.fechaInicio.seconds*1000),
             fechaFin: new Date(data.fechaFin.seconds*1000),
             doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            doctor_id: doctoresRef.filter(e => e.id == data.doctor)[0].id,
             id: doc.id
             })
           });
@@ -438,14 +449,17 @@
             fechaInicio: new Date(data.fechaInicio.seconds*1000),
             fechaFin: new Date(data.fechaFin.seconds*1000),
             doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            doctor_id: doctoresRef.filter(e => e.id == data.doctor)[0].id,
             id: doc.id
             })
           });
         });
         },
-        async pagarConsulta(docId){          
-          let doc = await db.collection('consultas').doc(docId)
-          await doc.update({estado: 'Pagada'})
+        async pagarConsulta(docId,userId,citaId){    
+          console.log(docId,userId,citaId)      
+          
+          let doc = await db.collection('consultas').doc(citaId)
+          await doc.update({estado: 'Pendiente Pago'})
           auth.onAuthStateChanged(async (user) =>{
           consultas.value = []
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
@@ -457,9 +471,12 @@
             fechaInicio: new Date(data.fechaInicio.seconds*1000),
             fechaFin: new Date(data.fechaFin.seconds*1000),
             doctor: doctoresRef.filter(e => e.id == data.doctor)[0].name,
+            doctor_id: doctoresRef.filter(e => e.id == data.doctor)[0].id,
             id: doc.id
             })
           });
+          let pagoData = {cliente: userId, consulta: citaId, estado: 'Pendiente', doctor: docId}
+          await db.collection('pagos').doc().set(pagoData)
         });          
           dialogPagar.value = false
           
