@@ -1,6 +1,6 @@
-<template>  
+<template>
     <v-card class="mx-2 mt-3">
-        <h1>Citas</h1>
+        <h1>Consultas</h1>
     </v-card>
     <!-- BEGIN DIALOG -->
   <div>
@@ -8,7 +8,7 @@
       class="mx-2 my-1"
       prepend-icon="mdi-plus-circle"
       color="primary"
-    >Nueva Cita
+    >Nueva Consulta
       <v-dialog
         v-model="dialog"
         activator="parent"
@@ -17,7 +17,7 @@
           min-width="800"
         >
           <v-card-title>
-            <span class="text-h5">Formulario de la Cita</span>
+            <span class="text-h5">Formulario de la Consulta</span>
           </v-card-title>
           <v-card-text>
             <v-form
@@ -29,7 +29,7 @@
               <v-row>
                 <v-col>
                   <v-text-field label="Descripcion" required v-model="descripcion"/>
-                </v-col>                
+                </v-col>
               </v-row>
               <v-row>   
                  <v-select
@@ -47,10 +47,10 @@
                 </v-select>
               </v-row>
               <div v-if="showSchedule">
-                <span class="text-h5">Seleccione la Fecha y Hora de la Cita</span>
+                <span class="text-h5">Seleccione la Fecha y Hora de la Consulta</span>
                 <v-row>
                   <v-col>
-                    <label>Hora de Inicio de la Cita</label>
+                    <label>Hora de Inicio de la Consulta</label>
                     <v-date-picker color="yellow" v-model="timeBegin" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
@@ -63,7 +63,7 @@
                     </v-date-picker>
                   </v-col>
                   <v-col>
-                    <label>Hora de Fin de la Cita</label>
+                    <label>Hora de Fin de la Consulta</label>
                     <v-date-picker color="yellow" v-model="timeEnd" class="my-2" mode="time">
                         <template v-slot="{ inputValue, inputEvents }">                            
                             <input
@@ -97,7 +97,7 @@
                       
                     </ul>
                     <div v-else>
-                      El doctor no tiene consultas este dia.
+                      El especialista no tiene consultas este dia.
                     </div>
                   </v-col>
                 </v-row>
@@ -167,12 +167,12 @@
                       <v-btn color="primary">Aprobar
                         <v-dialog activator="parent" v-model="dialogAprobar">
                           <v-card>
-                            <v-card-title>Aprobar Cita</v-card-title>
+                            <v-card-title>Aprobar Consulta</v-card-title>
                             <v-card-text>                  
-                              Esta Seguro que Desea Aprobar Esta Cita?
+                              Esta Seguro que Desea Aprobar Esta Consulta?
                             </v-card-text>
                             <v-card-actions>
-                              <v-btn color="primary" @click="aprobarConsulta(item.id)" :loading="loadingAprobar">Si</v-btn>
+                              <v-btn color="primary" @click="aprobarConsulta(item.id,item.doctor_id)" :loading="loadingAprobar">Si</v-btn>
                               <v-btn @click="dialogAprobar = false">No</v-btn>
                             </v-card-actions>
                           </v-card>
@@ -183,10 +183,10 @@
                       <v-btn color="primary">Cancelar
                         <v-dialog activator="parent" v-model="dialogCancelar">
                           <v-card>
-                            <v-card-title>Cancelar Cita</v-card-title>
-                            <v-card-text>Esta Seguro que Desea Cancelar Esta Cita?</v-card-text>
+                            <v-card-title>Cancelar Consulta</v-card-title>
+                            <v-card-text>Esta Seguro que Desea Cancelar Esta Consulta?</v-card-text>
                             <v-card-actions>
-                              <v-btn color="primary" @click="cancelarCita(item.id)" :loading="loadingCancelar">Si</v-btn>
+                              <v-btn color="primary" @click="cancelarCita(item.id,item.doctor_id)" :loading="loadingCancelar">Si</v-btn>
                               <v-btn @click="dialogCancelar = false">No</v-btn>
                             </v-card-actions>
                           </v-card>
@@ -209,9 +209,9 @@
                       <v-btn color="primary" @click="RealizarConsulta" v-if="item.estado == 'Pagada'">Realizar
                         <v-dialog activator="parent" v-model="dialogRealizar">
                           <v-card>
-                            <v-card-title>Realizar Cita</v-card-title>
+                            <v-card-title>Realizar Consulta</v-card-title>
                             <v-card-text>                  
-                              Esta cita fue creada como presencial. Desea marcarla como realizada?
+                              Esta Consulta fue creada como presencial. Desea marcarla como realizada?
                             </v-card-text>
                             <v-card-actions>
                               <v-btn color="primary" @click="realizarConsulta(item.id)" :loading="loadingRealizar">Si</v-btn>
@@ -243,6 +243,7 @@
   import { auth,db } from "../firebase.js"  
   import { Timestamp } from "firebase/firestore";
   import { ref,onMounted } from 'vue'
+  import emailjs from '@emailjs/browser';
   export default {    
     setup () {
       const formValidation = ref(false)
@@ -258,8 +259,7 @@
         isDoc = false
       }else{
         isDoc = true
-      }      
-      console.log(userRole)
+      }
       let consultas = ref([])
       onMounted(async () =>{
         //get user
@@ -387,7 +387,7 @@
             loadingMain.value = false
             dialog.value = false
           }else{
-            alert('Existe un Conflicto entre Una o Mas Citas')
+            alert('Existe un Conflicto entre Una o Mas Consultas')
             loadingMain.value = false
             
           }
@@ -396,7 +396,23 @@
           //dialog.value = false
           consultas.value = []
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
-
+          //SEND MAIL
+          let userRef = await db.collection('users').doc(user.uid).get()
+          let docRef = await db.collection('users').doc(doctor.value).get()
+          let to_email = docRef.data().email
+          let subject = 'A recibido una nueva solicitud para una consulta.'
+          let message = 'Ingrese a la aplicacion para aprobarla o rechazarla. La consulta fue enviada por el usuario: ' + userRef.data().first_name + ' ' + userRef.data().last_name + ' Correo(' + userRef.data().email + ')'
+          let doc_name = docRef.data().first_name + ' ' + docRef.data().last_name
+          var emailParams = {to_email:to_email,message:message,doc_name: doc_name, subject: subject}
+          let credentialsRef = await db.collection('email').doc('credentials').get()
+          let credentialsData = credentialsRef.data()
+          //console.log(emailParams)
+          emailjs.send(credentialsData.service_id,credentialsData.template_id,emailParams,credentialsData.public_id).then((response)=>{
+              console.log('Success: ', response)
+          },(error) =>{
+              console.log('Error: ', error)
+          })
+          //END SEND MAIL
           consultasRef.forEach(doc => {
             let data = doc.data()
             consultas.value.push({
@@ -409,7 +425,7 @@
             })
           });
         },
-        async aprobarConsulta(docId){
+        async aprobarConsulta(docId,doctor_id){
           loadingAprobar.value = true
           let doc = await db.collection('consultas').doc(docId)
           await doc.update({estado: 'Aprobado'})
@@ -418,7 +434,23 @@
           auth.onAuthStateChanged(async (user) =>{
           consultas.value = []
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
-
+          //SEND MAIL
+          let userRef = await db.collection('users').doc(user.uid).get()
+          let docRef = await db.collection('users').doc(doctor_id).get()
+          let to_email = userRef.data().email          
+          let message = 'Su Consulta a sido aprobada. El siguiente paso es mandar la solicitud de pago y esperar a que el especialista la apruebe'
+          let doc_name = docRef.data().first_name + ' ' + docRef.data().last_name
+          let subject = 'Se envia este correo para notificarle que su consulta con el especialista '+ doc_name+' a cambiado de estado'
+          var emailParams = {to_email:to_email,message:message,doc_name: doc_name, subject: subject}
+          let credentialsRef = await db.collection('email').doc('credentials').get()
+          let credentialsData = credentialsRef.data()
+          //console.log(emailParams)
+          emailjs.send(credentialsData.service_id,credentialsData.template_id,emailParams,credentialsData.public_id).then((response)=>{
+              console.log('Success: ', response)
+          },(error) =>{
+              console.log('Error: ', error)
+          })
+          //END SEND MAIL
           consultasRef.forEach(doc => {
             let data = doc.data()
             consultas.value.push({
@@ -432,7 +464,7 @@
           });
         });
         },
-        async cancelarCita(docId){
+        async cancelarCita(docId,doctor_id){
           loadingCancelar.value = true
           let doc = await db.collection('consultas').doc(docId)
           await doc.update({estado: 'Cancelado'})
@@ -441,7 +473,23 @@
           auth.onAuthStateChanged(async (user) =>{
           consultas.value = []
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
-
+          //SEND MAIL
+          let userRef = await db.collection('users').doc(user.uid).get()
+          let docRef = await db.collection('users').doc(doctor_id).get()
+          let to_email = userRef.data().email          
+          let message = 'Su Consulta a sido cancelada. El especialista a decidido cancelar su consulta'
+          let doc_name = docRef.data().first_name + ' ' + docRef.data().last_name
+          let subject = 'Se envia este correo para notificarle que su consulta con el especialista '+ doc_name+' a cambiado de estado'
+          var emailParams = {to_email:to_email,message:message,doc_name: doc_name, subject: subject}
+          let credentialsRef = await db.collection('email').doc('credentials').get()
+          let credentialsData = credentialsRef.data()
+          //console.log(emailParams)
+          emailjs.send(credentialsData.service_id,credentialsData.template_id,emailParams,credentialsData.public_id).then((response)=>{
+              console.log('Success: ', response)
+          },(error) =>{
+              console.log('Error: ', error)
+          })
+          //END SEND MAIL
           consultasRef.forEach(doc => {
             let data = doc.data()
             consultas.value.push({
@@ -455,15 +503,30 @@
           });
         });
         },
-        async pagarConsulta(docId,userId,citaId){    
-          console.log(docId,userId,citaId)      
+        async pagarConsulta(docId,userId,citaId){
           
           let doc = await db.collection('consultas').doc(citaId)
           await doc.update({estado: 'Pendiente Pago'})
           auth.onAuthStateChanged(async (user) =>{
           consultas.value = []
           let consultasRef = await db.collection('consultas').where('usuario','==',user.uid).where('estado','!=','Cancelado').get()
-
+          //SEND MAIL
+          let userRef = await db.collection('users').doc(user.uid).get()
+          let docRef = await db.collection('users').doc(docId).get()
+          let to_email = docRef.data().email          
+          let message = 'Ingrese a la aplicacion para aprobarla o rechazarla.'
+          let doc_name = docRef.data().first_name + ' ' + docRef.data().last_name
+          let subject = 'A recibido una nueva solicitud de pago para la consulta con el usuario: ' + userRef.data().first_name + ' ' + userRef.data().last_name + ' Correo(' + userRef.data().email + ')'
+          var emailParams = {to_email:to_email,message:message,doc_name: doc_name, subject: subject}
+          let credentialsRef = await db.collection('email').doc('credentials').get()
+          let credentialsData = credentialsRef.data()
+          //console.log(emailParams)
+          emailjs.send(credentialsData.service_id,credentialsData.template_id,emailParams,credentialsData.public_id).then((response)=>{
+              console.log('Success: ', response)
+          },(error) =>{
+              console.log('Error: ', error)
+          })
+          //END SEND MAIL
           consultasRef.forEach(doc => {
             let data = doc.data()
             consultas.value.push({
