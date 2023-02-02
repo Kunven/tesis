@@ -42,9 +42,10 @@
         </tbody>
     </v-table>
     <v-card class="mx-2 mt-3">
-      <h1>Credenciales de Correos para las Notificaciones</h1>
-      <v-card>
-        <v-card-text>          
+      <h1 class="mx-2 mt-3">Credenciales de Correos para las Notificaciones</h1>
+      <v-card>        
+        <v-card-text>
+          <h4 class="mx-2 mb-3">Configure los servicios y plantillas en el dashboard de EmailJS, luego copie aqui las credenciales que se usaran en las notificaciones</h4>
           <v-row>
             <v-col>
               <v-text-field label="service_id" required v-model="service_id"/>
