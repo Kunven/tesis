@@ -76,14 +76,15 @@
       let items2 = cantones
       return{
         titulo,cargo,institucion,provincia,canton,cedula,names,lastNames,phone,mail,direccion,user,password,password2,items,items2,handleRegister(){
-          auth.createUserWithEmailAndPassword(mail,password2).then((usr) =>{
+          auth.createUserWithEmailAndPassword(mail.value,password2.value).then((usr) =>{
             //Creating user details
             usr.uid
             const data = {
-              cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, correo: mail.value, direccion: direccion.value, 
-              usuario: user,estado: 'Pendiente', provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date)
+              cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, email: mail.value, direccion: direccion.value, 
+              usuario: user.value,estado: 'Pendiente', provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date), titulo: titulo.value, cargo: cargo.value, institucion: institucion.value, rol:1
             }
-            db.collection('especialistas').doc(usr.uid).set(data)
+            db.collection('users').doc(usr.uid).set(data)
+            alert('Su Cuenta a sido creada, sin embargo esta pendiente de aprobacion. Cuando sea aprobada le llegara un correo')            
             //TODO MODAL REGISTRO
           }).catch((error) => {
             alert(error)

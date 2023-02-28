@@ -163,6 +163,15 @@
                     <!-- <v-list-item>
                       <v-btn>Actualizar</v-btn>
                     </v-list-item> -->
+                    <v-list-item>
+                      <v-btn color="primary">
+                        <v-dialog activator="parent" v-model="dialogNOtas">
+                          <v-card>
+                            TEMP
+                          </v-card>
+                        </v-dialog>
+                      </v-btn>
+                    </v-list-item>
                     <v-list-item v-if="isDoc && item.estado != 'Aprobado'" >
                       <v-btn color="primary">Aprobar
                         <v-dialog activator="parent" v-model="dialogAprobar">

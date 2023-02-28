@@ -53,8 +53,8 @@
 	import { auth,db } from "../firebase.js"
   import { ref } from 'vue'
   import {provincias} from '../assets/provincias.js'
-  import { Timestamp } from "firebase/firestore";
   import {cantones} from '../assets/cantones.js'
+  import { Timestamp } from "firebase/firestore";  
 	export default {
     setup(){
 		const cedula = ref('')
@@ -79,16 +79,17 @@
 				msg.value == "El formulario esta incompleto. Tiene que llenar como minimo un correo y una contraseña"
 				showError.value = true
 			}else{
-				await auth.createUserWithEmailAndPassword(mail,password2).then(async (usr) =>{
+				await auth.createUserWithEmailAndPassword(mail.value,password2.value).then(async (usr) =>{
 					//Creating user details
 					usr.uid
 					const data = {
-					cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, correo: mail.value, direccion: direccion.value, 
-					usuario: user.value, provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date)
+					cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, email: mail.value, direccion: direccion.value, 
+					usuario: user.value, provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date), rol: 0,estado: 'Activo'
 					}
 					await db.collection('users').doc(usr.uid).set(data)
 					msg.value = "Usuario Creado con Exito"
 					showSuccess.value = true
+					this.$router.push('/login')
 					//TODO MODAL REGISTRO
 				}).catch((error) => {
 					error

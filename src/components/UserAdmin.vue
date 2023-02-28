@@ -85,7 +85,7 @@
                     </v-card>
                   </v-dialog>
                 </v-list-item>                
-                <v-list-item v-if="item.rol == '1' && item.estado == 'pendiente'">
+                <v-list-item v-if="item.rol == 1 && item.estado == 'Pendiente'">
                   <v-dialog v-model="modalAprobar">
                     <template v-slot:activator="{ props }">
                       <v-btn
@@ -116,26 +116,34 @@
                         <v-card-title>Modificar Usuario</v-card-title>
                         <v-card-text>
                           <div hidden><v-text-field class="mr-5 ml-5" v-model="UserId" /></div>                  
-                          <v-row>
-                            <v-text-field class="mr-5 ml-5" v-model="UserFirstName" label="Nombres" />
-                          </v-row>				          
-                          <v-row>
-                            <v-text-field class="mr-5 ml-5" v-model="UserLastName" label="Apellidos" />                    
-                          </v-row>
-                          <v-row>
-                            <v-text-field class="mr-5" v-model="UserTelefono" label="Telefono" />
-                          </v-row>
-                          <v-row>
-                            <v-text-field class="mr-5 ml-5" v-model="UserCedula" label="Cedula" /> 
-                          </v-row>
-                          <v-row>
-                            <v-select
-                              v-model="UserRol"
-                              :items="roles"
-                              item-title="label"
-                              item-value="rol"
-                              label="Rol"
-                            ></v-select>
+                          <v-row class="mt-3">
+                            <v-col>
+                                <v-form style="width: 75vw;">
+                                <v-row class="mb-4 mx-2">
+                                  <v-alert v-if="showError"  type="error">{{ msg }}</v-alert>
+                                  <v-alert v-if="showSuccess" type="success">{{ msg }}</v-alert>
+                                </v-row>
+                                <v-row>
+                                  <v-text-field class="mr-5 ml-5" v-model="cedula" label="Cedula" />
+                                  <v-text-field class="mr-5 ml-5" v-model="names" label="Nombres" />
+                                  <v-text-field class="mr-5 ml-5" v-model="lastNames" label="Apellidos" />					
+                                </v-row>
+                                <v-row>
+                                  <v-text-field class="mr-5 ml-5" v-model="phone" label="Telefono" />
+                                  <v-text-field class="mr-5 ml-5" v-model="mail" label="Correo" />
+                                  <v-text-field class="mr-5 ml-5" v-model="direccion" label="Direccion" />
+                                </v-row>
+                                <v-row>
+                                  <v-text-field class="mr-5 ml-5" v-model="user" label="Usuario" />
+                                  <v-text-field class="mr-5 ml-5" :type="show1 ? 'text' : 'password'" v-model="password" label="Contraseña" />
+                                  <v-text-field class="mr-5 ml-5" v-model="password2" :type="show1 ? 'text' : 'password'" label="Repita la Contraseña" />						
+                                </v-row>
+                                <v-row>
+                                  <v-select @update:modelValue="filterCities" class="mr-5 ml-5" :items="items" item-title="provincia" item-value="id" label="Provincia" v-model="provincia"></v-select>
+                                  <v-select class="mr-5 ml-5" :items="items2" item-title="canton" item-value="id" label="Canton" v-model="canton"></v-select>
+                                </v-row>
+                              </v-form>
+                            </v-col>
                           </v-row>
                         </v-card-text>
                         <v-card-actions>
@@ -163,10 +171,15 @@
 <script>
   import { db } from "../firebase.js"    
   import { ref,onMounted } from 'vue'
+  import {provincias} from '../assets/provincias.js'
+  import {cantones} from '../assets/cantones.js'
   import { useMainStore} from '../store/mainStore'
+  import emailjs from '@emailjs/browser';
 
   export default {
     setup () {
+      let items = ref(provincias)
+      let items2 = ref(cantones)
       let tarifas = [{id:1, nombre: 'Psicologo General',costo_hora:10}, {id:2, nombre: 'Psiquiatra Clinico',costo_hora:20}, {id:3, nombre: 'Terapeuta',costo_hora: 30}]
       let tarifasDoc = ref([])
       let modalAprobar = ref(false)
@@ -191,7 +204,7 @@
         });
       });
       return {
-        tarifas,tarifasDoc,modalAprobar,usuarios,roles,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
+        items,items2,tarifas,tarifasDoc,modalAprobar,usuarios,roles,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
         async loadUser(item){      
           console.log(item)    
           let userRef = await db.collection('users').doc(item).get()
@@ -222,13 +235,27 @@
           dialogUpdate.value = false
           this.$router.push('/admin')
         },async aprobarUsuario(id){
-          await db.collection('users').doc(id).update({estado: 'aprobado'}).then(async () => {
+          await db.collection('users').doc(id).update({estado: 'Activo'}).then(async () => {
             usuarios.value = []
             let usuariosRef = await db.collection('users').get()
             usuariosRef.forEach(row => {
               let data = row.data()          
               usuarios.value.push({id: row.id, cedula: data.cedula, first_name: data.first_name, last_name: data.last_name, rol: data.rol, telefono: data.telefono, estado: data.estado })
             });
+            //SEND MAIL
+            let userRef = await db.collection('users').doc(id).get()          
+            let to_email = userRef.data().email          
+            let message = 'Su Usuario a Sido Aprobado. Bienvenido a la aplicacion!'            
+            let subject = 'Usuario Aprobado'
+            var emailParams = {to_email:to_email,message:message, subject: subject}            
+            let credentialsRef = await db.collection('email').doc('credentials').get()
+            let credentialsData = credentialsRef.data()
+            //console.log(emailParams)
+            emailjs.send(credentialsData.service_id,credentialsData.template_id,emailParams,credentialsData.public_id).then((response)=>{
+                console.log('Success: ', response)
+            },(error) =>{
+                console.log('Error: ', error)
+            })
             modalAprobar.value = false
           }).catch((e) => {
             alert(e)
