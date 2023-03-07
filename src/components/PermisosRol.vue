@@ -75,7 +75,7 @@
                         </div>
                       </v-card-text>
                       <v-card-actions>
-                        <v-btn @click="submitForm">Submit</v-btn>
+                        <v-btn @click="submitForm(item.id)">Submit</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-dialog>
@@ -134,7 +134,7 @@ export default {
     let dialogNew = ref(false)    
     const store = useMainStore()
     let inputRol = ref('')
-    let permisosRol = ref([{index: 1, pantalla_id: 1}])
+    let permisosRol = ref([{pantalla_id: 1}])
     let modalRoles = ref(false)
     let userRole = store.rol
     let rol = ref('Usuario')
@@ -151,31 +151,40 @@ export default {
     return{
       showError,msg,modalDelete,dialogNew,inputRol,permisosRol,pantallasData,rol,userRole,roles,modalRoles,async setRol(id,nombre){
         permisosRol.value = []
+        let pantallas = await db.collection('roles').doc(id.toString()).collection('permisos').doc('pantallas').get()
+        console.log(pantallas.data().pantallas)
+        let pantallas_num = Object.values(pantallas.data().pantallas)        
+        pantallas_num.forEach(e => {
+          permisosRol.value.push({pantalla_id: e})
+        });
         rol.value = nombre
         rolId.value = id
-        console.log(rolId.value)
-        let permisosRolRef = await db.collection('permisos_rol').where('rol_id','==', parseInt(rolId.value)).get()
-        permisosRolRef.forEach(row => {
-          let data = row.data()          
-          permisosRol.value.push({pantalla_id: data.pantalla_id})
-        })        
+        
       },delRol(index){
         permisosRol.value.splice(index, 1)
       },addRol(){
         permisosRol.value.push({})
-      },async submitForm(){
+      },async submitForm(id){
         //TO DO
-        console.log(permisosRol)
+        if (permisosRol.value.length > 0) {
+          let data = {}
+         permisosRol.value.forEach((element,index) => {
+           data[index] = element.pantalla_id
+         });         
+        await db.collection('roles').doc(id.toString()).collection('permisos').doc('pantallas').update({pantallas: data})        
+        }
       },async newRol(){
         const data = {nombre: inputRol.value, activo: "1"}        
-        await db.collection('roles').doc(roles.value.length.toString()).set(data)
-        roles.value = []
-        let rolesRef = await db.collection('roles').get()
-        rolesRef.forEach(row => {
-          let data = row.data()
-          roles.value.push({id: row.id, nombre: data.nombre, activo: data.activo})
-        });
-        dialogNew.value = false
+        await db.collection('roles').doc(roles.value.length.toString()).set(data).then(async () =>{
+          await db.collection('roles').doc(roles.value.length.toString()).collection('permisos').doc('pantallas').set({pantallas: {0:1}})
+          roles.value = []
+          let rolesRef = await db.collection('roles').get()
+          rolesRef.forEach(row => {
+            let data = row.data()
+            roles.value.push({id: row.id, nombre: data.nombre, activo: data.activo})
+          });
+          dialogNew.value = false
+        })        
       },async delRolDB(id){
         let valRol = await db.collection('users').where("rol","==",id.toString()).get()
         let valid = true
