@@ -84,7 +84,7 @@
 					usr.uid
 					const data = {
 					cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, email: mail.value, direccion: direccion.value, 
-					usuario: user.value, provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date), rol: 0,estado: 'Activo'
+					usuario: user.value, provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date), rol: "0",estado: 'Activo'
 					}
 					await db.collection('users').doc(usr.uid).set(data)
 					msg.value = "Usuario Creado con Exito"

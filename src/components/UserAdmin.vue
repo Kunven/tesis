@@ -57,34 +57,7 @@
                   Acciones
                 </v-btn>
               </template>
-              <v-list>
-                <v-list-item v-if="item.rol == '1'">
-                  <v-dialog>
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        color="primary"
-                        v-bind="props"                        
-                      >
-                        Tarifas
-                      </v-btn>
-                    </template>
-                    <v-card>
-                      <v-card>Tarifas</v-card>
-                      <v-card-text>
-                        <v-btn class="mb-5" color="primary" @click="addTar">Agregar</v-btn>
-                        <div v-for="(item,index) in tarifasDoc" :key="item">
-                          <v-row>
-                            <v-select class="mr-5 ml-5" :items="tarifas" item-title="nombre" item-value="id" label="Tarifas" v-model="item.tarifa"></v-select>
-                            <v-btn color="primary" @click="delTar(index)">Quitar</v-btn>
-                          </v-row>                  
-                        </div>
-                      </v-card-text>
-                      <v-card-actions>
-                        <v-btn @click="saveTar">Submit</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-list-item>                
+              <v-list>                
                 <v-list-item v-if="item.rol == 1 && item.estado == 'Pendiente'">
                   <v-dialog v-model="modalAprobar">
                     <template v-slot:activator="{ props }">
@@ -124,30 +97,34 @@
                                   <v-alert v-if="showSuccess" type="success">{{ msg }}</v-alert>
                                 </v-row>
                                 <v-row>
-                                  <v-text-field class="mr-5 ml-5" v-model="cedula" label="Cedula" />
-                                  <v-text-field class="mr-5 ml-5" v-model="names" label="Nombres" />
-                                  <v-text-field class="mr-5 ml-5" v-model="lastNames" label="Apellidos" />					
+                                  <v-text-field class="mr-5 ml-5" v-model="UserCedula" label="Cedula" />
+                                  <v-text-field class="mr-5 ml-5" v-model="UserFirstName" label="Nombres" />
+                                  <v-text-field class="mr-5 ml-5" v-model="UserLastName" label="Apellidos" />					
                                 </v-row>
                                 <v-row>
-                                  <v-text-field class="mr-5 ml-5" v-model="phone" label="Telefono" />
-                                  <v-text-field class="mr-5 ml-5" v-model="mail" label="Correo" />
-                                  <v-text-field class="mr-5 ml-5" v-model="direccion" label="Direccion" />
+                                  <v-text-field class="mr-5 ml-5" v-model="UserTelefono" label="Telefono" />
+                                  <v-text-field class="mr-5 ml-5" v-model="UserEmail" label="Correo" />
+                                  <v-text-field class="mr-5 ml-5" v-model="UserDireccion" label="Direccion" />
                                 </v-row>
                                 <v-row>
-                                  <v-text-field class="mr-5 ml-5" v-model="user" label="Usuario" />
-                                  <v-text-field class="mr-5 ml-5" :type="show1 ? 'text' : 'password'" v-model="password" label="Contraseña" />
-                                  <v-text-field class="mr-5 ml-5" v-model="password2" :type="show1 ? 'text' : 'password'" label="Repita la Contraseña" />						
+                                  <v-text-field class="mr-5 ml-5" v-model="UserUsuario" label="Usuario" />
+                                  <v-select class="mr-5 ml-5" :items="rolesData" item-title="rol" item-value="id" label="Rol" v-model="UserRol"></v-select>
+                                  <v-select  class="mr-5 ml-5" :items="items" item-title="provincia" item-value="id" label="Provincia" v-model="UserProvincia"></v-select>
                                 </v-row>
-                                <v-row>
-                                  <v-select @update:modelValue="filterCities" class="mr-5 ml-5" :items="items" item-title="provincia" item-value="id" label="Provincia" v-model="provincia"></v-select>
-                                  <v-select class="mr-5 ml-5" :items="items2" item-title="canton" item-value="id" label="Canton" v-model="canton"></v-select>
+                                <v-row>                                  
+                                  <v-select class="mr-5 ml-5" :items="items2" item-title="canton" item-value="id" label="Canton" v-model="UserCanton"></v-select>
                                 </v-row>
+                                <v-row v-if="item.rol == 1">
+                                  <v-text-field class="mr-5 ml-5" v-model="UserCargo" label="Cargo" />                                  
+                                  <v-text-field class="mr-5 ml-5" v-model="UserInstitucion" label="Institucion" />
+                                  <v-text-field class="mr-5 ml-5" v-model="UserURL" label="Titulo URL" />
+                                </v-row>                                
                               </v-form>
                             </v-col>
                           </v-row>
                         </v-card-text>
                         <v-card-actions>
-                          <v-btn @click="guardar" :loading="loadingGuardar">Guardar</v-btn>                  
+                          <v-btn @click="guardar" :loading="loadingGuardar">Guardar</v-btn>
                         </v-card-actions>
                       </v-card>
                     </v-dialog>
@@ -179,9 +156,7 @@
   export default {
     setup () {
       let items = ref(provincias)
-      let items2 = ref(cantones)
-      let tarifas = [{id:1, nombre: 'Psicologo General',costo_hora:10}, {id:2, nombre: 'Psiquiatra Clinico',costo_hora:20}, {id:3, nombre: 'Terapeuta',costo_hora: 30}]
-      let tarifasDoc = ref([])
+      let items2 = ref(cantones)      
       let modalAprobar = ref(false)
       let usuarios = ref([])
       let UserCedula = ref('')
@@ -190,12 +165,20 @@
       let UserFirstName = ref('')
       let UserLastName = ref('')
       let UserTelefono = ref('')
+      let UserEmail = ref('')
       let UserRol = ref('')
+      let UserCanton = ref('')
+      let UserCargo = ref('')
+      let UserInstitucion = ref('')
+      let UserURL = ref('')
+      let UserProvincia = ref('')
+      let UserDireccion = ref('')
+      let rolesData = ref([])
+      let UserUsuario = ref('')
       let rol = ref('')
       const store = useMainStore()
       let userRole = store.rol
       let loadingGuardar = ref(false)
-      let roles = [{rol: "0", label: 'Usuario General'},{rol: "1", label: 'Doctor'},{rol:"2", label: 'Administrador'}]//TODO
       onMounted(async () =>{
         let usuariosRef = await db.collection('users').get()        
         usuariosRef.forEach(row => {
@@ -204,16 +187,30 @@
         });
       });
       return {
-        items,items2,tarifas,tarifasDoc,modalAprobar,usuarios,roles,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
-        async loadUser(item){      
-          console.log(item)    
+        UserCanton,UserProvincia,UserDireccion,UserUsuario,UserURL,UserInstitucion,UserCargo,UserEmail,rolesData,items,items2,modalAprobar,usuarios,rol,UserCedula,UserFirstName,UserLastName,UserTelefono,UserRol,dialogUpdate,userId,userRole,
+        async loadUser(item){
+          rolesData.value = []
+          let rolesRef = await db.collection('roles').get()
+          rolesRef.forEach(doc => {
+            let data = doc.data()            
+            rolesData.value.push({id: doc.id, rol: data.nombre})
+          });          
           let userRef = await db.collection('users').doc(item).get()
           userId.value = userRef.id
           UserCedula.value = userRef.data().cedula
           UserFirstName.value = userRef.data().first_name
           UserLastName.value = userRef.data().last_name
           UserTelefono.value = userRef.data().telefono
+          UserProvincia.value = userRef.data().provincia
+          UserCanton.value = userRef.data().canton
           UserRol.value = userRef.data().rol
+          UserEmail.value = userRef.data().email
+          UserDireccion.value = userRef.data().direccion
+          UserCargo.value = userRef.data().cargo
+          UserInstitucion.value = userRef.data().institucion
+          UserURL.value = userRef.data().titulo
+          UserUsuario.value = userRef.data().usuario
+          console.log(UserRol.value)
         },
         async guardar(){
           console.log(userId.value)
@@ -229,7 +226,7 @@
           usuarios.value = []
           let usuariosRef = await db.collection('users').get()        
           usuariosRef.forEach(row => {
-            let data = row.data()          
+            let data = row.data()
             usuarios.value.push({id: row.id, cedula: data.cedula, first_name: data.first_name, last_name: data.last_name, rol: data.rol, telefono: data.telefono })
           });
           dialogUpdate.value = false
@@ -260,12 +257,6 @@
           }).catch((e) => {
             alert(e)
           })
-        },addTar(){
-          tarifasDoc.value.push({})
-        },delTar(index){
-          tarifasDoc.value.splice(index, 1)
-        },saveTar(){
-          //TODO
         }
       }
       

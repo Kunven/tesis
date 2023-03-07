@@ -81,7 +81,7 @@
             usr.uid
             const data = {
               cedula: cedula.value, first_name: names.value, last_name: lastNames.value, telefono: phone.value, email: mail.value, direccion: direccion.value, 
-              usuario: user.value,estado: 'Pendiente', provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date), titulo: titulo.value, cargo: cargo.value, institucion: institucion.value, rol:1
+              usuario: user.value,estado: 'Pendiente', provincia: provincia.value, canton: canton.value, created: Timestamp.fromDate(new Date), titulo: titulo.value, cargo: cargo.value, institucion: institucion.value, rol:"1"
             }
             db.collection('users').doc(usr.uid).set(data)
             alert('Su Cuenta a sido creada, sin embargo esta pendiente de aprobacion. Cuando sea aprobada le llegara un correo')            
