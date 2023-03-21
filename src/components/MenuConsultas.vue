@@ -40,12 +40,7 @@
                 label="Seleccione un Doctor"
                 @update:modelValue="loadCalendar"                
                 ></v-select>
-              </v-row>
-              <v-row>
-                <v-select v-model="tarifa" :items="tarifasRef" item-title="name" item-value="id" label="Seleccione una Tarifa">
-                  
-                </v-select>
-              </v-row>
+              </v-row>              
               <div v-if="showSchedule">
                 <span class="text-h5">Seleccione la Fecha y Hora de la Consulta</span>
                 <v-row>
@@ -315,11 +310,9 @@
       let loadingCancelar= ref(false)
       let dialog = ref(false)
       let loadingRealizar = ref(false)
-      let loadingPagar = ref(false)
-      let tarifa = ref(0)
-      let tarifasRef = ref([{id: 1,name:'Psicologo'},{id: 2,name:'Terapeuta'},{id: 2,name:'Especialista'}])
+      let loadingPagar = ref(false)      
       return {
-        tarifa,tarifasRef,doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
+        doctoresRef,dialog,descripcion,doctor,loadingMain,timeBegin,timeEnd,consultas_dia,date,showSchedule,
         consultas,isDoc,dialogAprobar,loadingAprobar,loadingCancelar,dialogCancelar,formValidation,loadingRealizar,
         dialogRealizar,dialogPagar,loadingPagar,
         async realizarConsulta(docId){

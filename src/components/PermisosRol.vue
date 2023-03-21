@@ -171,7 +171,9 @@ export default {
          permisosRol.value.forEach((element,index) => {
            data[index] = element.pantalla_id
          });         
-        await db.collection('roles').doc(id.toString()).collection('permisos').doc('pantallas').update({pantallas: data})        
+        await db.collection('roles').doc(id.toString()).collection('permisos').doc('pantallas').update({pantallas: data}).then(() =>{
+          modalRoles.value = false
+        })
         }
       },async newRol(){
         const data = {nombre: inputRol.value, activo: "1"}        

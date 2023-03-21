@@ -23,7 +23,7 @@
         <v-list-item prepend-icon="mdi-forum" title="Administracion de Usuarios" value="usuario" href="admin" v-if="pantallas_num.filter(e => e == 4).length == 1"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Administracion de Citas" value="usuario" href="adminCitas" v-if="pantallas_num.filter(e => e == 5).length == 1"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Administracion de Pagos" value="usuario" href="adminPagos" v-if="pantallas_num.filter(e => e == 6).length == 1"></v-list-item>
-        <v-list-item prepend-icon="mdi-forum" title="Administracion de Fichas Medicas" value="usuario" href="fichas" v-if="pantallas_num.filter(e => e == 7).length == 1"></v-list-item>
+        <!-- <v-list-item prepend-icon="mdi-forum" title="Administracion de Fichas Medicas" value="usuario" href="fichas" v-if="pantallas_num.filter(e => e == 7).length == 1"></v-list-item> -->
         <v-list-item prepend-icon="mdi-forum" title="Roles" value="usuario" href="permisos" v-if="pantallas_num.filter(e => e == 8).length == 1"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Ubicaciones" value="usuario" href="ubicaciones" v-if="pantallas_num.filter(e => e == 9).length == 1"></v-list-item>
         <v-list-item prepend-icon="mdi-forum" title="Parametros" value="usuario" href="parametros" v-if="pantallas_num.filter(e => e == 10).length == 1"></v-list-item>
